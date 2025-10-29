@@ -546,20 +546,17 @@ For all testing, please refer to the [TESTING.md](TESTING.md) file.
 
 The live deployed application can be found deployed on [Heroku](https://l2d-driving-school-6f23811ec0fb.herokuapp.com).
 
-### Supabase Database
+### Neon Database
 
-This project uses [Supabase](https://supabase.com/) for the PostgreSQL Database.
+This project uses [Neon](http://neon.tech/) for the PostgreSQL Database.
 
 To obtain your own Postgres Database, sign-up with your GitHub account, then follow these steps:
 
-- Click **New Project**.
-- Decide an organisation name and fill the mandatory field (This can be anything).
-- Click **Create Organization**.
-- Decide a project name (this is commonly the name of the project: L2D-driving-school-CI-PP4), a database name, a database password and pick the region that is closest to you.
-- Click **Create New Project**.
-- It will take some time to set up this project.
-- When the project has been set up there should be a green button on the top right of the page which says "Connect".
-- Clicking this button will reveal the API key needed to connect to the database (database url) and you can use this to connect to the Supabase database.
+- Decide a project name (this is commonly the name of the project: L2D-driving-school-CI-PP4), and a database name and fill in the fields.
+- Pick the version of Postgress that you would like from the drop-down menu.
+- Pick the region that is closest to you from the drop-down menu.
+- Click **Create Project**.
+- You can now connect to the database using the API provided.
 
 ### Cloudinary API
 
