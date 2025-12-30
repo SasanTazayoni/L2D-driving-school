@@ -2,6 +2,15 @@
 
 ![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgressql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png)
 
+## 🎯 Quick Links
+
+- [Live Site](https://l2d-driving-school-6f23811ec0fb.herokuapp.com) - View the deployed application
+- [User Stories](#user-stories) - Full list of features and requirements
+- [Features](#current-features) - Detailed feature breakdown
+- [Database Design](#database-design) - ERD and models
+- [Testing](TESTING.md) - Comprehensive testing documentation
+- [Deployment](#deployment) - Setup and deployment guide
+
 ## Introduction
 
 Introducing L2D Driving School — a groundbreaking prototype within the driving education landscape. The website is aptly named "L2D Driving School", with "L2D" representing the abbreviation for "learn-to-drive." This concise moniker encapsulates the platform's primary mission — to facilitate the journey of learners as they master the art of driving.
