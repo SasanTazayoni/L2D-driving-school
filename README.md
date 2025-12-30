@@ -2,6 +2,7 @@
 
 ![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgressql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png)
 
+
 ## 🎯 Quick Links
 
 - [Live Site](https://l2d-driving-school-6f23811ec0fb.herokuapp.com) - View the deployed application
@@ -10,6 +11,7 @@
 - [Database Design](#database-design) - ERD and models
 - [Testing](TESTING.md) - Comprehensive testing documentation
 - [Deployment](#deployment) - Setup and deployment guide
+
 
 ## Introduction
 
@@ -24,6 +26,41 @@ In future iterations, L2D Driving School plans to further enhance community enga
 You can access the application [here](https://l2d-driving-school-6f23811ec0fb.herokuapp.com).
 
 ![L2D home page shown on various devices](documentation/amiresponsive.png)
+
+
+## 🔧 Key Technical Challenges Solved
+
+### 1. User Authentication & Profile Management
+**Challenge:** Required secure authentication system with profile approval workflow to prevent spam bookings.  
+**Solution:** Implemented Django Allauth for authentication with custom UserProfile model featuring admin approval system. Users can only access appointment booking after admin verification, preventing abuse while maintaining security.
+
+### 2. Review & Comment Moderation System
+**Challenge:** Needed content moderation to maintain quality while allowing user engagement through reviews and comments.  
+**Solution:** Built dual-approval system where both reviews and comments require admin approval before publication. Users can see their pending content on profile pages, while approved content appears publicly with full CRUD functionality.
+
+### 3. One Review Per User Restriction
+**Challenge:** Preventing users from spamming multiple reviews while allowing genuine feedback.  
+**Solution:** Implemented OneToOneField relationship between UserProfile and Review models, ensuring each user can only submit a single review, with edit/delete options to maintain accuracy over time.
+
+### 4. Calendly Integration for Appointments
+**Challenge:** Building a robust appointment scheduling system from scratch would exceed project scope.  
+**Solution:** Integrated Calendly API for professional appointment management, leveraging existing scheduling infrastructure while maintaining seamless user experience within the platform.
+
+### 5. Complex Permission System
+**Challenge:** Different user states required different access levels (unauthenticated, authenticated, admin-approved).  
+**Solution:** Implemented Django's permission system with custom decorators and template logic to control access to appointments, reviews, and administrative functions based on user authentication and approval status.
+
+### 6. Password Reset Email Workflow
+**Challenge:** Secure password reset mechanism with token-based authentication.  
+**Solution:** Integrated Gmail API for sending password reset emails with secure tokens, implementing environment-specific behavior (terminal output in development, actual emails in production).
+
+### 7. Image Upload & Storage
+**Challenge:** Heroku's ephemeral storage doesn't persist user-uploaded images like profile pictures.  
+**Solution:** Integrated Cloudinary API for reliable image hosting and management, ensuring user-uploaded profile pictures remain accessible across deployments.
+
+### 8. Paginated Content Display
+**Challenge:** Large amounts of reviews and user profiles needed efficient display without overwhelming users.  
+**Solution:** Implemented Django pagination for reviews (per page) and user gallery (12 per page) with custom JavaScript-enhanced navigation buttons, improving load times and user experience.
 
 
 ## User Experience
