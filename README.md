@@ -1,6 +1,6 @@
 # L2D Driving School CI PP4
 
-![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgressql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png)
+![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgresql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png) ![ChatGPT](tech/chatgpt.png)
 
 
 ## 🎯 Quick Links
