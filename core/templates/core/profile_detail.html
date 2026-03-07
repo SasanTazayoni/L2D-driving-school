@@ -79,6 +79,10 @@
                                     </div>
                                     <p>{{ user_profile.review.content | safe }}</p>
                                 </div>
+                            {% else %}
+                                <div class="profile-content pending-approval">
+                                    <p>(pending review)</p>
+                                </div>
                             {% endif %}
                         {% else %}
                         <div class="profile-content italic">

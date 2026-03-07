@@ -129,6 +129,24 @@
                         {% endif %}
                     </div>
                 </div>
+            {% elif comment.author.user == request.user %}
+                <div class="comment-container pending-approval">
+                    <p class="comment-author">
+                        <strong>{{ comment.author }}</strong> wrote ({{ comment.replied_on }}):
+                        <span class="italic">(pending approval)</span>
+                    </p>
+                    <div id="comment{{ comment.id }}" class="comment-content">
+                        {{ comment.content | safe }}
+                        {% if request.user.is_authenticated and comment.author.user == request.user %}
+                            <div class="btn-container d-flex justify-content-center mt-4">
+                                <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
+                                    class="blue-button">Edit</a>
+                                <button type="button" class="red-button" data-bs-toggle="modal"
+                                    data-bs-target="#deleteCommentModal{{ comment.id }}">Delete</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             {% endif %}
         {% endfor %}
         <!-- Creating New Comments -->
