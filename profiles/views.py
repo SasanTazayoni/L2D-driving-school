@@ -49,7 +49,7 @@ def edit_profile(request):
     """
 
     profile = get_object_or_404(UserProfile, user=request.user)
-    user = get_object_or_404(User, username=request.user)
+    user = request.user
 
     if request.method == 'POST':
         form = UserProfileForm(
