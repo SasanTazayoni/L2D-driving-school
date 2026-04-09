@@ -15,8 +15,9 @@ authBtns.forEach(btn => {
 });
 
 function createRipple(e) {
-    let x = e.clientX - e.target.getBoundingClientRect().left;
-    let y = e.clientY - e.target.getBoundingClientRect().top;
+    const rect = e.target.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
     let ripples = document.createElement('span');
     ripples.style.left = x + 'px';
     ripples.style.top = y + 'px';
