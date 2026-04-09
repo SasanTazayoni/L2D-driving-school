@@ -59,8 +59,8 @@ def user_profiles(request):
     )
 
     page = request.GET.get('page')
-    results = 12
-    paginator = Paginator(user_profiles, results)
+    profiles_per_page = 12
+    paginator = Paginator(user_profiles, profiles_per_page)
 
     try:
         user_profiles = paginator.page(page)
