@@ -76,8 +76,6 @@ class UserProfileSearchViewTest(TestCase):
     Test user search on user profiles page.
     """
     def setUp(self):
-        self.factory = RequestFactory()
-
         self.user1 = User.objects.create_user(
             first_name='John',
             username='johnsmith',
@@ -94,7 +92,6 @@ class UserProfileSearchViewTest(TestCase):
 
     def test_search_bar_with_empty_query(self):
         url = reverse('user_profiles')
-        request = self.factory.get(url, {'search_query': ''})
         response = self.client.get(url, {'search_query': ''})
 
         self.assertEqual(response.status_code, 200)
@@ -102,7 +99,6 @@ class UserProfileSearchViewTest(TestCase):
 
     def test_search_bar_with_results(self):
         url = reverse('user_profiles')
-        request = self.factory.get(url, {'search_query': 'John'})
         response = self.client.get(url, {'search_query': 'John'})
 
         self.assertEqual(response.status_code, 200)
