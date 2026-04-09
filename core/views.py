@@ -32,7 +32,7 @@ def appointments(request):
                 "Please contact your driving instructor."
             )
         )
-        return redirect(reverse('contact'))
+        return redirect('contact')
 
 
 def contact(request):

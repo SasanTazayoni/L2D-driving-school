@@ -171,7 +171,7 @@ def create_review(request):
         if form.is_valid():
             review = form.save(commit=False)
             review.author = profile
-            form.save()
+            review.save()
             messages.success(
                 request,
                 'Your review was submitted and is now pending admin approval.'
@@ -205,7 +205,7 @@ def update_review(request, review_id):
         if form.is_valid():
             review = form.save(commit=False)
             review.updated_on = timezone.now()
-            form.save()
+            review.save()
             messages.success(request, 'Your review has been updated.')
             return redirect('profile_page')
 
