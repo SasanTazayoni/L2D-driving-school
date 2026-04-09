@@ -1,10 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from reviews.models import Review, Comment
+from reviews.models import Comment
 from .models import UserProfile
 from .forms import UserProfileForm
 
