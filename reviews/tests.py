@@ -2,7 +2,10 @@ from django.http import HttpResponseRedirect
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.contrib.admin.sites import AdminSite
+from django.contrib.messages.storage.fallback import FallbackStorage
 from reviews.models import Review, Comment
+from reviews.admin import ReviewAdmin, CommentAdmin
 from profiles.models import UserProfile
 from .forms import ReviewForm, CommentForm
 from django.core.paginator import Paginator
@@ -52,11 +55,6 @@ class ReviewListViewPaginationTest(TestCase):
         results_per_page = 6
         paginator = Paginator(reviews, results_per_page)
         self.assertEqual(paginator.num_pages, 2)
-
-        if page == 1:
-            self.assertEqual(len(paginator.page(page).object_list), 6)
-        elif page == 2:
-            self.assertEqual(len(paginator.page(page).object_list), 4)
 
     def test_average_rating(self):
         """
@@ -171,9 +169,55 @@ class EditCommentViewTest(TestCase):
         """
         Test that non-authenticated users cannot access the edit comment view.
         """
-        url = reverse('edit_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        url = reverse(
+            'edit_comment',
+            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
+
+    def test_edit_comment_valid_post(self):
+        """
+        Test editing a comment with valid data.
+        """
+        self.client.login(username='fakeuser', password='password')
+        url = reverse(
+            'edit_comment',
+            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
+        )
+        response = self.client.post(url, {'content': 'Updated comment'})
+        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]))
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.content, 'Updated comment')
+
+    def test_edit_comment_invalid_post(self):
+        """
+        Test editing a comment with invalid (empty) data.
+        """
+        self.client.login(username='fakeuser', password='password')
+        url = reverse(
+            'edit_comment',
+            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
+        )
+        response = self.client.post(url, {'content': ''})
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_comment_wrong_user(self):
+        """
+        Test that a user cannot edit another user's comment.
+        """
+        other_user = User.objects.create_user(
+            first_name='Other',
+            username='otheruser',
+            email='other@example.com',
+            password='password'
+        )
+        self.client.login(username='otheruser', password='password')
+        url = reverse('edit_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        response = self.client.post(url, {'content': 'Hijacked content'})
+        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]))
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.content, 'Test comment')
 
 
 class DeleteCommentViewTest(TestCase):
@@ -212,16 +256,40 @@ class DeleteCommentViewTest(TestCase):
         """
         self.client.login(username='fakeuser', password='password')
         url = reverse('delete_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
-        response = self.client.get(url)
+        response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
+        self.assertFalse(Comment.objects.filter(id=self.comment_id).exists())
 
     def test_delete_comment_non_authenticated_user(self):
         """
         Test that non-authenticated users cannot delete comments.
         """
-        url = reverse('delete_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        url = reverse(
+            'delete_comment',
+            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
+
+    def test_delete_comment_wrong_user(self):
+        """
+        Test that a user cannot delete another user's comment.
+        """
+        other_user = User.objects.create_user(
+            first_name='Other', username='otheruser',
+            email='other@example.com', password='password'
+        )
+        self.client.login(username='otheruser', password='password')
+        url = reverse(
+            'delete_comment',
+            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
+        )
+        response = self.client.post(url)
+        self.assertRedirects(
+            response,
+            reverse('review_detail', kwargs={'review_id': self.review_id})
+        )
+        self.assertTrue(Comment.objects.filter(id=self.comment_id).exists())
 
 
 class CreateReviewViewTest(TestCase):
@@ -251,8 +319,6 @@ class CreateReviewViewTest(TestCase):
         """
         Test the behavior of creating a review for an authenticated user with an existing review.
         """
-        if not UserProfile.objects.filter(user=self.testuser).exists():
-            UserProfile.objects.create(user=self.testuser)
         review = Review.objects.create(author=self.testuser.profile, rating=4, content="Test Review Content", approved=True)
         self.client.login(username='fakeuser', password='password')
         response = self.client.get(reverse('create_review'))
@@ -331,38 +397,36 @@ class UpdateReviewViewTest(TestCase):
 
     def test_valid_form_submission(self):
         """
-        Test submitting a valid review form.
+        Test submitting a valid update review form.
         """
+        review = Review.objects.create(
+            author=self.testuser.profile, rating=3,
+            content='Original content', approved=True
+        )
         self.client.login(username='fakeuser', password='password')
-        form_data = {'rating': 4, 'content': 'Valid review content'}
-        response = self.client.post(reverse('create_review'), data=form_data)
+        form_data = {'rating': 4, 'content': 'Updated review content'}
+        response = self.client.post(
+            reverse('update_review', kwargs={'review_id': review.id}),
+            data=form_data
+        )
         self.assertRedirects(response, reverse('profile_page'))
-        self.assertEqual(response.status_code, 302)
+        review.refresh_from_db()
+        self.assertEqual(review.content, 'Updated review content')
 
     def test_invalid_form_submission(self):
         """
-        Test submitting an invalid review form.
+        Test submitting an invalid update review form.
         """
+        review = Review.objects.create(
+            author=self.testuser.profile, rating=3,
+            content='Original content', approved=True
+        )
         self.client.login(username='fakeuser', password='password')
-        form_data = {'content': 'Invalid review content'}
-        response = self.client.post(reverse('create_review'), data=form_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'reviews/review_form.html')
-        self.assertTrue('form' in response.context)
-
-    def test_valid_form_submission(self):
-        # Validate form submission for an authenticated user with valid data
-        self.client.login(username='fakeuser', password='password')
-        form_data = {'rating': 4, 'content': 'Valid review content'}
-        response = self.client.post(reverse('create_review'), data=form_data)
-        self.assertRedirects(response, reverse('profile_page'))
-        self.assertEqual(response.status_code, 302)
-
-    def test_invalid_form_submission(self):
-        # Assert that an invalid review form submission renders the review form page again
-        self.client.login(username='fakeuser', password='password')
-        form_data = {'content': 'Invalid review content'}
-        response = self.client.post(reverse('create_review'), data=form_data)
+        form_data = {'content': 'Missing rating'}
+        response = self.client.post(
+            reverse('update_review', kwargs={'review_id': review.id}),
+            data=form_data
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'reviews/review_form.html')
         self.assertTrue('form' in response.context)
@@ -404,8 +468,37 @@ class DeleteReviewViewTest(TestCase):
         Test attempting to delete a review by an unauthenticated user.
         """
         response = self.client.post(reverse('delete_review', kwargs={'review_id': self.review.id}))
-        self.assertRedirects(response, '/accounts/login/?next=/reviews/delete-review/1/')
+        self.assertRedirects(
+            response,
+            f'/accounts/login/?next=/reviews/delete-review/{self.review.id}/'
+        )
         self.assertEqual(response.status_code, 302)
+        self.assertTrue(Review.objects.filter(id=self.review.id).exists())
+
+    def test_delete_review_not_owned(self):
+        """
+        Test that a user cannot delete another user's review.
+        """
+        other_user = User.objects.create_user(
+            first_name='Other', username='otheruser',
+            email='other@example.com', password='password'
+        )
+        self.client.login(username='otheruser', password='password')
+        response = self.client.post(
+            reverse('delete_review', kwargs={'review_id': self.review.id})
+        )
+        self.assertRedirects(response, reverse('profile_page'))
+        self.assertTrue(Review.objects.filter(id=self.review.id).exists())
+
+    def test_delete_review_get_request(self):
+        """
+        Test that a GET to delete_review redirects without deleting.
+        """
+        self.client.login(username='fakeuser', password='password')
+        response = self.client.get(
+            reverse('delete_review', kwargs={'review_id': self.review.id})
+        )
+        self.assertRedirects(response, reverse('profile_page'))
         self.assertTrue(Review.objects.filter(id=self.review.id).exists())
 
 
@@ -443,3 +536,88 @@ class LikeToggleViewTest(TestCase):
         self.assertIsInstance(response, HttpResponseRedirect)
         updated_review = Review.objects.get(id=like_id)
         self.assertFalse(updated_review.likes.filter(id=self.user_profile.id).exists())
+
+
+class ReviewModelTest(TestCase):
+    """
+    Test the string representation of Review and Comment models.
+    """
+    def setUp(self):
+        self.testuser = User.objects.create_user(
+            first_name='Fake',
+            username='fakeuser',
+            email='fakeuser@fakemail.com',
+            password='password'
+        )
+        self.profile = UserProfile.objects.get_or_create(user=self.testuser)[0]
+        self.review = Review.objects.create(
+            author=self.profile,
+            rating=4,
+            content='Test Review Content',
+            approved=True
+        )
+        self.comment = Comment.objects.create(
+            author=self.profile,
+            review=self.review,
+            content='Test comment'
+        )
+
+    def test_review_str(self):
+        """Test Review __str__ representation."""
+        self.assertIn('Written by', str(self.review))
+
+    def test_comment_str(self):
+        """Test Comment __str__ representation."""
+        self.assertIn('Written by', str(self.comment))
+
+
+class ReviewAdminTest(TestCase):
+    """
+    Test admin actions for Review and Comment.
+    """
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.admin_user = User.objects.create_superuser(
+            first_name='Admin',
+            username='adminuser',
+            email='admin@test.com',
+            password='adminpass'
+        )
+        self.profile = UserProfile.objects.get_or_create(user=self.admin_user)[0]
+        self.review = Review.objects.create(
+            author=self.profile,
+            rating=4,
+            content='Test Review Content',
+            approved=False
+        )
+        self.comment = Comment.objects.create(
+            author=self.profile,
+            review=self.review,
+            content='Test comment',
+            approved=False
+        )
+
+    def _get_request(self):
+        request = self.factory.get('/')
+        request.user = self.admin_user
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+        return request
+
+    def test_approve_reviews(self):
+        """Test approve_reviews admin action."""
+        admin = ReviewAdmin(Review, AdminSite())
+        admin.approve_reviews(
+            self._get_request(), Review.objects.filter(id=self.review.id)
+        )
+        self.review.refresh_from_db()
+        self.assertTrue(self.review.approved)
+
+    def test_approve_comments(self):
+        """Test approve_comments admin action."""
+        admin = CommentAdmin(Comment, AdminSite())
+        admin.approve_comments(
+            self._get_request(), Comment.objects.filter(id=self.comment.id)
+        )
+        self.comment.refresh_from_db()
+        self.assertTrue(self.comment.approved)

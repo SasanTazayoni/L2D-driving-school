@@ -1,0 +1,8 @@
+[run]
+omit =
+    manage.py
+    env.py
+    l2d/settings.py
+    l2d/asgi.py
+    l2d/wsgi.py
+    */migrations/*

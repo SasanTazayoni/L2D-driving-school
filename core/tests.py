@@ -42,9 +42,6 @@ class AppointmentsViewTest(TestCase):
         Testing authenticated, unapproved user.
         """
         self.client.login(username='fakeuser', password='password')
-        if not UserProfile.objects.filter(user=self.testuser).exists():
-            UserProfile.objects.create(user=self.testuser, approved=False)
-
         response = self.client.get(reverse('appointments'))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('contact'))
@@ -55,11 +52,8 @@ class AppointmentsViewTest(TestCase):
         """
         self.client.login(username='fakeuser', password='password')
 
-        if hasattr(self.testuser, 'profile'):
-            self.testuser.profile.approved = True
-            self.testuser.profile.save()
-        else:
-            UserProfile.objects.create(user=self.testuser, approved=True)
+        self.testuser.profile.approved = True
+        self.testuser.profile.save()
 
         response = self.client.get(reverse('appointments'))
         self.assertEqual(response.status_code, 200)
@@ -136,26 +130,20 @@ class UserProfilePaginationViewTest(TestCase):
     
     def test_pagination(self):
         url = reverse('user_profiles')
-        request = self.factory.get(url)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        user_profiles = (
-            UserProfile.objects
-            .all()
-            .order_by('user__first_name')
-        )
-
-        page = request.GET.get('page')
-        results = 12
-        paginator = Paginator(user_profiles, results)
-
+        user_profiles = UserProfile.objects.all().order_by('user__first_name')
+        paginator = Paginator(user_profiles, 12)
         self.assertEqual(paginator.num_pages, 2)
 
-        if page == 1:
-            self.assertEqual(len(user_profiles_page.object_list), 12)
-        elif page == 2:
-            self.assertEqual(len(user_profiles_page.object_list), 3)
+    def test_empty_page_returns_last_page(self):
+        """
+        Test that requesting a page beyond the last page returns the last page.
+        """
+        url = reverse('user_profiles')
+        response = self.client.get(url, {'page': 9999})
+        self.assertEqual(response.status_code, 200)
 
 
 class ProfileDetailViewTest(TestCase):
@@ -170,9 +158,6 @@ class ProfileDetailViewTest(TestCase):
             password='password'
         )
         
-        if not UserProfile.objects.filter(user=self.testuser).exists():
-            self.testuser_profile = UserProfile.objects.create(user=self.testuser)
-
         self.testuser_id = self.testuser.id
 
     def test_profile_detail_view(self):
