@@ -79,7 +79,7 @@ def edit_profile(request):
             }
         )
 
-    template = 'profiles/edit_profile.html',
+    template = 'profiles/edit_profile.html'
     context = {
         'form': form,
     }
