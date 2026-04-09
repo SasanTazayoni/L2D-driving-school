@@ -158,7 +158,7 @@ def create_review(request):
     """
     Create a review authored by the current user.
     """
-    profile = UserProfile.objects.get(user=request.user)
+    profile = request.user.profile
     existing_review = Review.objects.filter(author=profile).first()
 
     if existing_review:
@@ -188,7 +188,7 @@ def update_review(request, review_id):
     """
     Update a review authored by the current user.
     """
-    profile = UserProfile.objects.get(user=request.user)
+    profile = request.user.profile
     existing_review = (
         Review.objects
         .filter(author=profile, id=review_id)
@@ -219,7 +219,7 @@ def delete_review(request, review_id):
     """
     Delete a review authored by the current user.
     """
-    profile = UserProfile.objects.get(user=request.user)
+    profile = request.user.profile
     existing_review = (
         Review.objects
         .filter(author=profile, id=review_id)
@@ -244,7 +244,7 @@ def like_toggle(request, review_id):
     Toggles the like status for a review.
     """
     review = get_object_or_404(Review, id=request.POST.get('like_id'))
-    user_profile = UserProfile.objects.get(user=request.user)
+    user_profile = request.user.profile
 
     if review.likes.filter(id=user_profile.id).exists():
         review.likes.remove(user_profile)
