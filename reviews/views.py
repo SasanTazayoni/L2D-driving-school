@@ -88,6 +88,7 @@ def review_detail(request, review_id):
     return render(request, "reviews/review_detail.html", context)
 
 
+@login_required(login_url='/accounts/login/')
 def edit_comment(request, review_id, comment_id):
     """
     Edit a comment authored by the current user on a review.
