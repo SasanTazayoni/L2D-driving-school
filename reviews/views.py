@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
-from django.views.generic import ListView
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -49,7 +48,6 @@ def review_detail(request, review_id):
     Display the details of an individual review provided by a user.
     """
 
-    queryset = Review.objects.filter(approved=True)
     review = get_object_or_404(
         Review.objects.select_related('author'),
         id=review_id
@@ -246,13 +244,10 @@ def like_toggle(request, review_id):
     """
     review = get_object_or_404(Review, id=request.POST.get('like_id'))
     user_profile = UserProfile.objects.get(user=request.user)
-    liked = False
 
     if review.likes.filter(id=user_profile.id).exists():
         review.likes.remove(user_profile)
-        liked = False
     else:
         review.likes.add(user_profile)
-        liked = True
 
     return HttpResponseRedirect(reverse('review_detail', args=[review_id]))

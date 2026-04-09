@@ -1,9 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
 from django.contrib.auth.models import User
 from .models import UserProfile
-from reviews.models import Review
 from allauth.account.forms import SignupForm
 
 
