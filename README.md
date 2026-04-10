@@ -1,4 +1,4 @@
-# L2D Driving School CI PP4
+# L2D Driving School
 
 ![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgresql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png) ![ChatGPT](tech/chatgpt.png)
 
@@ -548,7 +548,7 @@ The following are the models created for L2D:
 
 ### GitHub Projects
 
-[GitHub Projects](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4/projects) served as an Agile tool for this project.
+[GitHub Projects](https://github.com/SasanTazayoni/L2D-driving-school/projects) served as an Agile tool for this project.
 It isn't a specialised tool, but with the right tags and project creation/issue assignments, it can be made to work.
 
 Through it, user stories, issues, and milestone tasks were planned, then tracked on a weekly basis using the basic Kanban board.
@@ -557,14 +557,14 @@ Through it, user stories, issues, and milestone tasks were planned, then tracked
 
 ### GitHub Issues
 
-[GitHub Issues](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4/issues) served as an another Agile tool.
+[GitHub Issues](https://github.com/SasanTazayoni/L2D-driving-school/issues) served as an another Agile tool.
 There, I used my own **User Story Template** to manage user stories. It also helped with milestone iterations on a weekly basis.
 
-- [Open Issues](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4/issues)
+- [Open Issues](https://github.com/SasanTazayoni/L2D-driving-school/issues)
 
 ![screenshot](documentation/openissues.png)
 
-- [Closed Issues](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4/issues?q=is%3Aissue+is%3Aclosed)
+- [Closed Issues](https://github.com/SasanTazayoni/L2D-driving-school/issues?q=is%3Aissue+is%3Aclosed)
 
 ![screenshot](documentation/closedissuestophalf.png)
 ![screenshot](documentation/closedissuesbottomhalf.png)
@@ -596,7 +596,7 @@ This project uses [Neon](http://neon.tech/) for the PostgreSQL Database.
 
 To obtain your own Postgres Database, sign-up with your GitHub account, then follow these steps:
 
-- Decide a project name (this is commonly the name of the project: L2D-driving-school-CI-PP4), and a database name and fill in the fields.
+- Decide a project name (this is commonly the name of the project: L2D-driving-school), and a database name and fill in the fields.
 - Pick the version of Postgress that you would like from the drop-down menu.
 - Pick the region that is closest to you from the drop-down menu.
 - Click **Create Project**.
@@ -629,7 +629,7 @@ Once you've created a Gmail (Google) account and logged-in, follow these series 
 - This might prompt you once again to confirm your password and account.
 - Select **Mail** for the app type.
 - Select **Other (Custom name)** for the device type.
-	- Any custom name, such as "Django" or L2D-driving-school-CI-PP4
+	- Any custom name, such as "Django"
 - You'll be provided with a 16-character password (API key).
 	- Save this somewhere locally, as you cannot access this key again later!
 	- `EMAIL_HOST_PASS` = user's 16-character API key
@@ -729,18 +729,18 @@ Once the project is cloned or forked, in order to run it locally, you'll need to
 
 You can clone the repository by following these steps:
 
-1. Go to the [GitHub repository](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4) 
+1. Go to the [GitHub repository](https://github.com/SasanTazayoni/L2D-driving-school)
 2. Locate the Code button above the list of files and click it 
 3. Select if you prefer to clone using HTTPS, SSH, or GitHub CLI and click the copy button to copy the URL to your clipboard
 4. Open Git Bash or Terminal
 5. Change the current working directory to the one where you want the cloned directory
 6. In your IDE Terminal, type the following command to clone my repository:
-	- `git clone https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4.git`
+	- `git clone https://github.com/SasanTazayoni/L2D-driving-school.git`
 7. Press Enter to create your local clone.
 
 Alternatively, if using Gitpod, you can click below to create your own workspace using this repository.
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SasanTazayoni/L2D-driving-school)
 
 Please note that in order to directly open the project in Gitpod, you need to have the browser extension installed.
 A tutorial on how to do that can be found [here](https://www.gitpod.io/docs/configure/user-settings/browser-extension).
@@ -750,7 +750,7 @@ A tutorial on how to do that can be found [here](https://www.gitpod.io/docs/conf
 By forking the GitHub Repository, we make a copy of the original repository on our GitHub account to view and/or make changes without affecting the original owner's repository.
 You can fork this repository by using the following steps:
 
-1. Log in to GitHub and locate the [GitHub Repository](https://github.com/SasanTazayoni/L2D-driving-school-CI-PP4)
+1. Log in to GitHub and locate the [GitHub Repository](https://github.com/SasanTazayoni/L2D-driving-school)
 2. At the top of the Repository (not top of page) just above the "Settings" Button on the menu, locate the "Fork" Button.
 3. Once clicked, you should now have a copy of the original repository in your own GitHub account!
 
@@ -790,7 +790,3 @@ On Heroku:
 ### Acknowledgements
 
 - I would like to thank my Code Institute mentor, [Tim Nelson](https://github.com/TravelTimN) for their support throughout the development of this project.
-- I would like to thank the [Code Institute](https://codeinstitute.net) tutor team for their assistance with troubleshooting and debugging some project issues, this goes especially for Jason Dunton, Sean Murphy, Rebecca Tracey-Timoney and Joanne Lee.
-- I would like to thank the [Code Institute Slack community](https://code-institute-room.slack.com) for the moral support; it kept me going during periods of self doubt and imposter syndrome.
-
-
