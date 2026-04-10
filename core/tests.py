@@ -5,6 +5,19 @@ from django.urls import reverse
 from profiles.models import UserProfile
 
 
+class Custom404Test(TestCase):
+    """
+    Tests for the custom 404 page.
+    """
+    def test_404_status_code(self):
+        response = self.client.get('/this-page-does-not-exist/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_uses_custom_template(self):
+        response = self.client.get('/this-page-does-not-exist/')
+        self.assertTemplateUsed(response, '404.html')
+
+
 class HomeViewTest(TestCase):
     """
     Test to see if home page renders correctly.

@@ -20,6 +20,8 @@ from django.urls import path, include
 from core import views as core_views
 
 
+handler404 = 'l2d.views.handler404'
+
 urlpatterns = [
     path("", core_views.home, name="home"),
     path("admin/", admin.site.urls),

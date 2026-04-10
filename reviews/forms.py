@@ -2,7 +2,7 @@ from django import forms
 from .models import Comment, Review
 
 
-class ReviewForm(ModelForm):
+class ReviewForm(forms.ModelForm):
     """
     Form for creating or updating a review.
     """

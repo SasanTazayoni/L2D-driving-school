@@ -869,6 +869,16 @@ footer i {
     }
 }
 
+.hero-content--404 {
+    width: 320px;
+}
+
+@media screen and (max-width: 428px) {
+    .hero-content--404 {
+        width: 85%;
+    }
+}
+
 /* Reviews, review form and review details template */
 
 .about-picture {
