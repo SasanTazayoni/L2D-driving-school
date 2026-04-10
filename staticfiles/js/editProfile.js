@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
         imgElement.style.width = '150px';
         imgElement.style.margin = '20px 0';
 
-        for (let i = 0; i < 8; i++) {
+        const cloudinaryWidgetChildCount = 8;
+        for (let i = 0; i < cloudinaryWidgetChildCount; i++) {
             imageDivParent.removeChild(imageDivParent.firstChild);
         }
         imageDivParent.insertBefore(imgElement, imageDivParent.firstChild);
