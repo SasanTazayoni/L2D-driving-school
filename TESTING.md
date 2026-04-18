@@ -187,7 +187,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Click on a review card on the "Reviews" page | Redirects user to review details page | Pass | |
 | | If the user has made a review, click on the "View details" link | Redirects to the review details page | Pass | |
 | | Click on the author's name on the review details page | Redirects user to the author's profile | Pass | |
-| | Add like if user has not given a like already | Like count increases | Pass | The heart icon shows as red if the user has liked already and an outline if they have not |
+| | Add like if user has not given a like already | Like count increases | Pass | The heart icon shows as red if the user has liked already and an outline if they have not. Like is applied to the review identified by the URL, not any form data. |
 | | Remove like if user has given a like already | Like count decreases | Pass | The heart icon shows as red if the user has liked already and an outline if they have not |
 | | As an authenticated user click "Edit review" button (available if it is your review) | User redirected to review form | Pass | |
 | | As an authenticated user click "Delete review" button (available if it is your review) | Modal pops up | Pass | |
@@ -199,9 +199,9 @@ Defensive programming was manually tested with the below user acceptance testing
 | | After clicking "Delete comment", click the "No" button on the modal that pops up | Closes the modal | Pass | |
 | | After clicking "Delete comment", click off the modal that pops up | Closes the modal | Pass | |
 | | After clicking "Delete comment", click the "Yes" button on the modal that pops up | The comment will be deleted | Pass | |
-| | As an authenticated user click the "Submit" button with an empty Comments form | User will be prompted to fill the form and it will not be submitted | Pass | |
+| | As an authenticated user click the "Submit" button with an empty Comments form | Page re-renders with validation errors shown on the form; comment is not created | Pass | |
 | | As an authenticated user click the "Submit" button with content in the Comments form | The form will be submitted for approval and a django message will appear | Pass | |
-| | Brute forcing the review details URL when not authenticated in order to add a comment | The review detail page will be shown as it should for an unauthenticated user and a django message will appear | Pass | |
+| | Brute forcing the review details URL when not authenticated in order to add a comment | The review detail page will be shown as it should for an unauthenticated user | Pass | |
 | Appoinments | | | | |
 | | As an authenticated user that has been approved by the admin click on "Apppointments" link in the navigation bar | User will be redirected to the appointments page | Pass | |
 | | As an authenticated user that has been approved by the admin, access Calendly | User can manage their appointments | Pass | |
@@ -225,7 +225,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Click "Delete comment" button | Modal pops up | Pass | |
 | | After clicking "Delete comment", click the "No" button on the modal that pops up | Closes the modal | Pass | |
 | | After clicking "Delete comment", click off the modal that pops up | Closes the modal | Pass | |
-| | After clicking "Delete comment", click the "Yes" button on the modal that pops up | The comment will be deleted | Pass | |
+| | After clicking "Delete comment", click the "Yes" button on the modal that pops up | The comment will be deleted and user remains on the profile page | Pass | |
 | | Brute forcing the profile URL when not authenticated | User redirected to login page | Pass | |
 | Edit profile | | | | |
 | | Click "Edit profile" button on the profile page | User redirected to edit profile form | Pass | |
