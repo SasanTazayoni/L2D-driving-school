@@ -220,6 +220,51 @@ class EditCommentViewTest(TestCase):
         self.assertEqual(self.comment.content, 'Test comment')
 
 
+class AddCommentValidationTest(TestCase):
+    """
+    Test that submitting an invalid comment form returns errors in context.
+    """
+    def setUp(self):
+        self.testuser = User.objects.create_user(
+            username='fakeuser',
+            email='fakeuser@fakemail.com',
+            password='password'
+        )
+        self.review = Review.objects.create(
+            author=UserProfile.objects.get_or_create(user=self.testuser)[0],
+            rating=4,
+            content="Test Review Content",
+            approved=True
+        )
+
+    def test_empty_comment_returns_form_with_errors(self):
+        """
+        POSTing an empty comment should not create a comment and the
+        bound form should report validation errors on the content field.
+        """
+        from reviews.views import review_detail
+        factory = RequestFactory()
+        request = factory.post(
+            reverse('review_detail', kwargs={'review_id': self.review.id}),
+            data={'content': ''}
+        )
+        request.user = self.testuser
+        # Attach session and message storage required by the view
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+
+        comment_count_before = Comment.objects.count()
+        response = review_detail(request, review_id=self.review.id)
+
+        # Invalid submission must not redirect (302 means success path taken)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Comment.objects.count(), comment_count_before)
+        # The form itself must be invalid with content errors
+        form = CommentForm(data={'content': ''})
+        self.assertFalse(form.is_valid())
+        self.assertIn('content', form.errors)
+
+
 class DeleteCommentViewTest(TestCase):
     """
     Test case for deleting a comment view.
