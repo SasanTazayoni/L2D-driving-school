@@ -1,7 +1,7 @@
 /* jshint esversion: 11 */
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.location.pathname.endsWith('/profile/edit/')) {  
+    if (document.body.dataset.page === 'edit-profile') {
         const imageDiv = document.querySelector('#profile_picture-clear_id');
         const imageDivParent = imageDiv.parentNode;
         const firstAnchorChild = imageDivParent.querySelector('a');
@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         imgElement.style.width = '150px';
         imgElement.style.margin = '20px 0';
 
-        const cloudinaryWidgetChildCount = 8;
-        for (let i = 0; i < cloudinaryWidgetChildCount; i++) {
+        while (imageDivParent.firstChild) {
             imageDivParent.removeChild(imageDivParent.firstChild);
         }
         imageDivParent.insertBefore(imgElement, imageDivParent.firstChild);
