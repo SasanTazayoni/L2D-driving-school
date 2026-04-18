@@ -84,6 +84,18 @@ class ContactViewTest(TestCase):
         self.assertTemplateUsed(response, 'core/contact.html')
 
 
+class TermsAndConditionsViewTest(TestCase):
+    """
+    Test to see if terms and conditions page renders correctly.
+    """
+    def test_terms_view(self):
+        from core.views import terms_and_conditions
+        factory = RequestFactory()
+        request = factory.get(reverse('terms'))
+        response = terms_and_conditions(request)
+        self.assertEqual(response.status_code, 200)
+
+
 class UserProfileSearchViewTest(TestCase):
     """
     Test user search on user profiles page.
