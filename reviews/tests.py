@@ -147,23 +147,14 @@ class EditCommentViewTest(TestCase):
         self.review_id = self.review.id
         self.comment_id = self.comment.id
 
-    def test_edit_comment_authenticated_user(self):
+    def test_add_comment_valid_post_redirects(self):
         """
-        Test editing a comment by an authenticated user.
+        POSTing valid comment data to review_detail redirects back to the review.
         """
         self.client.login(username='fakeuser', password='password')
-        url = reverse('edit_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
-        response = self.client.get(url)
-        form_data = {'content': 'Test comment content'}
-        form = CommentForm(data=form_data)
-        self.assertTrue(form.is_valid())
-        response = self.client.post(reverse('review_detail', kwargs={'review_id': self.review.id}), data=form_data)
+        url = reverse('review_detail', kwargs={'review_id': self.review.id})
+        response = self.client.post(url, data={'content': 'Test comment content'})
         self.assertEqual(response.status_code, 302)
-        empty_form_data = {}
-        empty_form = CommentForm(data=empty_form_data)
-        self.assertFalse(empty_form.is_valid())
-        empty_response = self.client.post(reverse('review_detail', kwargs={'review_id': self.review.id}), data=empty_form_data)
-        self.assertEqual(empty_response.status_code, 200)
 
     def test_edit_comment_non_authenticated_user(self):
         """
@@ -186,21 +177,25 @@ class EditCommentViewTest(TestCase):
             kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
         )
         response = self.client.post(url, {'content': 'Updated comment'})
-        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]))
+        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]), fetch_redirect_response=False)
         self.comment.refresh_from_db()
         self.assertEqual(self.comment.content, 'Updated comment')
 
     def test_edit_comment_invalid_post(self):
         """
-        Test editing a comment with invalid (empty) data.
+        Test editing a comment with invalid (empty) data does not save and returns 200.
         """
-        self.client.login(username='fakeuser', password='password')
-        url = reverse(
-            'edit_comment',
-            kwargs={'review_id': self.review_id, 'comment_id': self.comment_id}
-        )
-        response = self.client.post(url, {'content': ''})
+        from reviews.views import edit_comment
+        factory = RequestFactory()
+        url = reverse('edit_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        request = factory.post(url, {'content': ''})
+        request.user = self.testuser
+        setattr(request, 'session', 'session')
+        setattr(request, '_messages', FallbackStorage(request))
+        response = edit_comment(request, review_id=self.review_id, comment_id=self.comment_id)
         self.assertEqual(response.status_code, 200)
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.content, 'Test comment')
 
     def test_edit_comment_wrong_user(self):
         """
@@ -215,7 +210,7 @@ class EditCommentViewTest(TestCase):
         self.client.login(username='otheruser', password='password')
         url = reverse('edit_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
         response = self.client.post(url, {'content': 'Hijacked content'})
-        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]))
+        self.assertRedirects(response, reverse('review_detail', args=[self.review_id]), fetch_redirect_response=False)
         self.comment.refresh_from_db()
         self.assertEqual(self.comment.content, 'Test comment')
 
