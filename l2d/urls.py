@@ -30,6 +30,7 @@ urlpatterns = [
     path("contact/", core_views.contact, name="contact"),
     path("profile/", include("profiles.urls"), name="profile"),
     path("reviews/", include("reviews.urls"), name="reviews"),
+    path("terms/", core_views.terms_and_conditions, name="terms"),
     path("summernote/", include("django_summernote.urls")),
     path("user-profiles/", include("core.urls"), name="user-profiles"),
 ]

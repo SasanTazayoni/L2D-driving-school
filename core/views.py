@@ -79,6 +79,13 @@ def user_profiles(request):
     return render(request, 'core/user_profiles.html', context)
 
 
+def terms_and_conditions(request):
+    """
+    Renders the Terms & Conditions page.
+    """
+    return render(request, 'core/terms_and_conditions.html')
+
+
 def profile_detail(request, user_id):
     """
     Renders the profile page for a particular user.
