@@ -537,6 +537,32 @@ class LikeToggleViewTest(TestCase):
         updated_review = Review.objects.get(id=review_id)
         self.assertFalse(updated_review.likes.filter(id=self.user_profile.id).exists())
 
+    def test_like_toggle_uses_url_review_id_not_post_body(self):
+        """
+        View must use the URL's review_id, not any like_id submitted in the POST body.
+        A mismatched like_id in POST data must not affect a different review.
+        """
+        other_user = User.objects.create_user(
+            username='otheruser', email='other@fakemail.com', password='password'
+        )
+        other_profile = UserProfile.objects.get_or_create(user=other_user)[0]
+        other_review = Review.objects.create(
+            author=other_profile,
+            rating=3,
+            content="Other Review",
+            approved=True
+        )
+        self.client.login(username='fakeuser', password='password')
+        # POST to self.review's URL but include other_review's id as like_id
+        self.client.post(
+            reverse('like_review', args=[self.review.id]),
+            data={'like_id': other_review.id}
+        )
+        # self.review should be liked (URL governs)
+        self.assertTrue(self.review.likes.filter(id=self.user_profile.id).exists())
+        # other_review must be untouched
+        self.assertFalse(other_review.likes.filter(id=self.user_profile.id).exists())
+
 
 class ReviewModelTest(TestCase):
     """
