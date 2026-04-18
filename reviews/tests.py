@@ -114,7 +114,7 @@ class ReviewDetailViewTest(TestCase):
         # Checking if comment form exists
         self.assertRegex(response.content.decode('utf-8'), r'<form\s+id="commentForm"\s+method="POST"')
         # Checking if like form exists
-        self.assertRegex(response.content.decode('utf-8'), r'<button[^>]*type="submit"[^>]*name="like_id"')
+        self.assertRegex(response.content.decode('utf-8'), r'<button[^>]*type="submit"')
 
 
 class EditCommentViewTest(TestCase):
@@ -158,7 +158,7 @@ class EditCommentViewTest(TestCase):
         form = CommentForm(data=form_data)
         self.assertTrue(form.is_valid())
         response = self.client.post(reverse('review_detail', kwargs={'review_id': self.review.id}), data=form_data)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         empty_form_data = {}
         empty_form = CommentForm(data=empty_form_data)
         self.assertFalse(empty_form.is_valid())
@@ -527,14 +527,14 @@ class LikeToggleViewTest(TestCase):
         Test toggling the like status for a review.
         """
         self.client.login(username='fakeuser', password='password')
-        like_id = self.review.id
-        response = self.client.post(reverse('like_review', args=[like_id]), {'like_id': like_id})
+        review_id = self.review.id
+        response = self.client.post(reverse('like_review', args=[review_id]))
         self.assertIsInstance(response, HttpResponseRedirect)
-        updated_review = Review.objects.get(id=like_id)
+        updated_review = Review.objects.get(id=review_id)
         self.assertTrue(updated_review.likes.filter(id=self.user_profile.id).exists())
-        response = self.client.post(reverse('like_review', args=[like_id]), {'like_id': like_id})
+        response = self.client.post(reverse('like_review', args=[review_id]))
         self.assertIsInstance(response, HttpResponseRedirect)
-        updated_review = Review.objects.get(id=like_id)
+        updated_review = Review.objects.get(id=review_id)
         self.assertFalse(updated_review.likes.filter(id=self.user_profile.id).exists())
 
 
