@@ -704,16 +704,30 @@ Sample `env.py` file:
 ```python
 import os
 
-os.environ.setdefault("CLOUDINARY_URL", "user's own value")
-os.environ.setdefault("DATABASE_URL", "user's own value")
-os.environ.setdefault("SECRET_KEY", "user's own value")
-os.environ.setdefault("HOST", "user's own value")
-os.environ.setdefault("EMAIL_HOST_PASS", "user's own value")
-os.environ.setdefault("EMAIL_HOST_USER", "user's own value")
+os.environ.setdefault("SECRET_KEY", "your-secret-key-here")
+os.environ.setdefault("DATABASE_URL", "your-database-url-here")
+os.environ.setdefault("CLOUDINARY_URL", "cloudinary://api_key:api_secret@cloud_name")
+os.environ.setdefault("EMAIL_HOST_USER", "your-email@gmail.com")
+os.environ.setdefault("EMAIL_HOST_PASS", "your-gmail-app-password-here")
+os.environ.setdefault("HOST", "your-deployed-host.herokuapp.com")
 
-# local environment only (do not include these in production/deployment!)
+# local development only — do not set these in production
 os.environ.setdefault("DEBUG", "True")
+os.environ.setdefault("LOCALHOST", "1")  # adds 127.0.0.1 to ALLOWED_HOSTS
+os.environ.setdefault("DEVELOPMENT", "1")  # switches email backend to console output
 ```
+
+| Variable | Required | Notes |
+|---|---|---|
+| `SECRET_KEY` | Always | Django secret key — keep this private |
+| `DATABASE_URL` | Always | PostgreSQL connection string (e.g. from ElephantSQL or Heroku Postgres) |
+| `CLOUDINARY_URL` | Always | Found on your Cloudinary dashboard |
+| `EMAIL_HOST_USER` | Always | Gmail address used for sending emails |
+| `EMAIL_HOST_PASS` | Always | Gmail **App Password** (not your account password) — generate under Google Account → Security |
+| `HOST` | Production | Your deployed domain (e.g. `myapp.herokuapp.com`) — omit locally |
+| `DEBUG` | Local only | Set to `"True"` locally; never set in production |
+| `LOCALHOST` | Local only | Enables `127.0.0.1` / `localhost` in `ALLOWED_HOSTS` |
+| `DEVELOPMENT` | Local only | Uses console email backend instead of Gmail SMTP |
 
 Once the project is cloned or forked, in order to run it locally, you'll need to follow these steps:
 
