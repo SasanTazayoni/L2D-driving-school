@@ -858,6 +858,12 @@ footer i {
 }
 
 @media screen and (max-width: 428px) {
+    .footer-legal-links {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
     .footer-text {
         font-size: 12px;
     }
