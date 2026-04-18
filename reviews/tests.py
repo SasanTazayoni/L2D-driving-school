@@ -271,6 +271,26 @@ class DeleteCommentViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
+    def test_delete_comment_from_profile_page_redirects_to_profile(self):
+        """
+        POSTing source_page=profile should redirect to the profile page, not the review detail.
+        """
+        self.client.login(username='fakeuser', password='password')
+        url = reverse('delete_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        response = self.client.post(url, data={'source_page': 'profile'})
+        self.assertRedirects(response, reverse('profile_page'), fetch_redirect_response=False)
+        self.assertFalse(Comment.objects.filter(id=self.comment_id).exists())
+
+    def test_delete_comment_without_source_page_redirects_to_review(self):
+        """
+        Without source_page=profile the redirect should go to the review detail page.
+        """
+        self.client.login(username='fakeuser', password='password')
+        url = reverse('delete_comment', kwargs={'review_id': self.review_id, 'comment_id': self.comment_id})
+        response = self.client.post(url)
+        self.assertRedirects(response, reverse('review_detail', kwargs={'review_id': self.review_id}), fetch_redirect_response=False)
+        self.assertFalse(Comment.objects.filter(id=self.comment_id).exists())
+
     def test_delete_comment_wrong_user(self):
         """
         Test that a user cannot delete another user's comment.
@@ -287,7 +307,8 @@ class DeleteCommentViewTest(TestCase):
         response = self.client.post(url)
         self.assertRedirects(
             response,
-            reverse('review_detail', kwargs={'review_id': self.review_id})
+            reverse('review_detail', kwargs={'review_id': self.review_id}),
+            fetch_redirect_response=False
         )
         self.assertTrue(Comment.objects.filter(id=self.comment_id).exists())
 
