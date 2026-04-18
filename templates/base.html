@@ -145,7 +145,10 @@
                         Are you sure you want to log out?
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
-                        <a href="{% url 'account_logout' %}" class="blue-button logout-btn">Yes</a>
+                        <form method="post" action="{% url 'account_logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="blue-button logout-btn">Yes</button>
+                        </form>
                         <button type="button" class="red-button" data-bs-dismiss="modal">No</button>
                     </div>
                 </div>
