@@ -143,8 +143,9 @@
   </div>
 
   <!-- Delete Profile Modal -->
-  <div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel"
-    aria-hidden="true">
+  <div class="modal fade" id="deleteProfileModal" tabindex="-1"
+    role="dialog" aria-modal="true"
+    aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header d-flex justify-content-center">
@@ -167,8 +168,9 @@
 
   <!-- Delete Review Modal -->
   {% if review_id %}
-    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel"
-      aria-hidden="true">
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1"
+      role="dialog" aria-modal="true"
+      aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header d-flex justify-content-center">
@@ -192,6 +194,7 @@
   {% for comment in profile.commenter.all %}
   <!-- Delete Comment Modal -->
     <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1"
+      role="dialog" aria-modal="true"
       aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

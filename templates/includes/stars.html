@@ -1,4 +1,5 @@
 {% spaceless %}
+    <span class="visually-hidden">{{ rating }} out of 5 stars</span>
     {% for star in "12345"|make_list %}
         {% if forloop.counter <= rating|add:"0" %}
             <span class="badge rounded-pill m-0 p-0">

@@ -87,8 +87,9 @@
     </div>
 
     <!-- Delete Review Modal -->
-    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1"
+        role="dialog" aria-modal="true"
+        aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-center">
@@ -188,6 +189,7 @@
     {% for comment in comments %}
     <!-- Delete Comment Modal -->
     <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1"
+      role="dialog" aria-modal="true"
       aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
