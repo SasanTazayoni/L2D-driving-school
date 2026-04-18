@@ -61,43 +61,43 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 mx-2">
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'home' %}active{% endif %}" aria-current="page"
-                            href="{% url 'home' %}">Home</a>
+                            href="{% url 'home' %}"><span>Home</span></a>
                     </li>
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'reviews' %}active{% endif %}" aria-current="page"
-                            href="{% url 'reviews' %}">Reviews</a>
+                            href="{% url 'reviews' %}"><span>Reviews</span></a>
                     </li>
                     {% if request.user.is_authenticated and request.user.profile.approved %}
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'appointments' %}active{% endif %}"
-                            aria-current="page" href="{% url 'appointments' %}">Appointments</a>
+                            aria-current="page" href="{% url 'appointments' %}"><span>Appointments</span></a>
                     </li>
                     {% endif %}
                     {% if request.user.is_authenticated %}
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'profile_page' %}active{% endif %}" aria-current="page"
-                            href="{% url 'profile_page' %}">Profile</a>
+                            href="{% url 'profile_page' %}"><span>Profile</span></a>
                     </li>
                     {% endif %}
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'user_profiles' %}active{% endif %}"
-                            aria-current="page" href="{% url 'user_profiles' %}">All Users</a>
+                            aria-current="page" href="{% url 'user_profiles' %}"><span>All Users</span></a>
                     </li>
                     <li class="nav-item mx-2">
                         <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'contact' %}active{% endif %}" aria-current="page"
-                            href="{% url 'contact' %}">Contact</a>
+                            href="{% url 'contact' %}"><span>Contact</span></a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item mx-2">
                         <button class="btn nav-link auth-link" data-bs-toggle="modal"
                             data-bs-target="#logoutConfirmationModal">
-                            Log out
+                            <span>Log out</span>
                         </button>
                     </li>
                     {% else %}
                     <li class="nav-item mx-2">
                         <a class="btn nav-link auth-link" aria-current="page" href="{% url 'account_login' %}">
-                            Log in/Sign up
+                            <span>Log in/Sign up</span>
                         </a>
                     </li>
                     {% endif %}
