@@ -72,8 +72,9 @@ def review_detail(request, review_id):
                 request, messages.SUCCESS,
                 'Your comment was submitted and is now pending admin approval.'
             )
-
-    comment_form = CommentForm()
+            return redirect('review_detail', review_id=review_id)
+    else:
+        comment_form = CommentForm()
 
     context = {
         'review': review,
@@ -149,6 +150,8 @@ def delete_comment(request, review_id, comment_id):
     if request.method == "POST":
         comment.delete()
         messages.success(request, 'Comment removed.')
+        if request.POST.get('source_page') == 'profile':
+            return redirect('profile_page')
 
     return redirect(reverse('review_detail', args=[review_id]))
 
@@ -243,7 +246,7 @@ def like_toggle(request, review_id):
     """
     Toggles the like status for a review.
     """
-    review = get_object_or_404(Review, id=request.POST.get('like_id'))
+    review = get_object_or_404(Review, id=review_id)
     user_profile = request.user.profile
 
     if review.likes.filter(id=user_profile.id).exists():

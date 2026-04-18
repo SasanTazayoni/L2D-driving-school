@@ -47,7 +47,7 @@
                         <div class="bold">
                             {% if request.user.is_authenticated %}
                                 {% if not is_edit_comment_view %}
-                                    <button type="submit" name="like_id" value="{{ review.id }}" aria-label="{% if liked %}Unlike this review{% else %}Like this review{% endif %}">
+                                    <button type="submit" aria-label="{% if liked %}Unlike this review{% else %}Like this review{% endif %}">
                                     {% if liked %}
                                         <i class="fa-solid fa-heart animate"></i>
                                     {% else %}

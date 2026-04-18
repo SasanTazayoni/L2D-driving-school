@@ -52,7 +52,7 @@ def user_profiles(request):
     if request.GET.get('search_query'):
         search_query = request.GET.get('search_query')
 
-    user_profiles = (
+    queryset = (
         UserProfile.objects
         .filter(user__first_name__icontains=search_query)
         .order_by('user__first_name')
@@ -60,19 +60,19 @@ def user_profiles(request):
 
     page = request.GET.get('page')
     profiles_per_page = 12
-    paginator = Paginator(user_profiles, profiles_per_page)
+    paginator = Paginator(queryset, profiles_per_page)
 
     try:
-        user_profiles = paginator.page(page)
+        page_obj = paginator.page(page)
     except PageNotAnInteger:
         page = 1
-        user_profiles = paginator.page(page)
+        page_obj = paginator.page(page)
     except EmptyPage:
         page = paginator.num_pages
-        user_profiles = paginator.page(page)
+        page_obj = paginator.page(page)
 
     context = {
-        'user_profiles': user_profiles,
+        'user_profiles': page_obj,
         'search_query': search_query,
         'paginator': paginator,
     }
