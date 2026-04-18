@@ -1489,6 +1489,11 @@ footer i {
 
 /* Contact page template */
 
+.formspree-notice {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.55);
+}
+
 .contact-form h1 {
     font-size: 24px;
     font-weight: bold;
