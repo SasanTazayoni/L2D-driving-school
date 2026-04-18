@@ -244,3 +244,33 @@ class ProfileAdminTest(TestCase):
         )
         profile.refresh_from_db()
         self.assertTrue(profile.approved)
+
+
+class ProfilePictureNullGuardTest(TestCase):
+    """
+    Ensure profile and profile_detail pages load without error for users
+    who have no profile picture set (guards against AttributeError on .url).
+    """
+    def setUp(self):
+        self.testuser = User.objects.create_user(
+            first_name='Nopic',
+            username='nopicuser',
+            email='nopic@example.com',
+            password='password'
+        )
+        self.profile = UserProfile.objects.get_or_create(user=self.testuser)[0]
+        self.profile.profile_picture = None
+        self.profile.save()
+
+    def test_profile_page_without_picture(self):
+        """Profile page returns 200 when the user has no profile picture."""
+        self.client.login(username='nopicuser', password='password')
+        response = self.client.get(reverse('profile_page'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_detail_without_picture(self):
+        """Public profile detail page returns 200 when the user has no profile picture."""
+        response = self.client.get(
+            reverse('profile_detail', kwargs={'user_id': self.testuser.id})
+        )
+        self.assertEqual(response.status_code, 200)
