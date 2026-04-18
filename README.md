@@ -1,6 +1,6 @@
 # L2D Driving School
 
-![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgresql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png) ![ChatGPT](tech/chatgpt.png)
+![HTML](tech/html.png) ![CSS](tech/css.png) ![Javascript](tech/javascript.png) ![Bootstrap](tech/bootstrap.png) ![Python](tech/python.png) ![Django](tech/django.png) ![Heroku](tech/heroku.png) ![Postgresql](tech/postgresql.png) ![Cloudinary](tech/cloudinary.png) ![Neon](tech/neon.png) ![ChatGPT](tech/chatgpt.png) ![Claude](tech/claude.png)
 
 ## 🎯 Quick Links
 
@@ -239,7 +239,7 @@ These epics collectively represent the core functionalities and user experiences
 ![Navbar dropdown menu](documentation/navmenudropdown.png)
 
 * Footer
-	* The footer block appears on all pages, displaying copyright information for the website and its author. Additionally, it features a distinctive spinning animation applied to the GitHub logo, inviting users to explore the project's repository on GitHub.
+	* The footer block appears on all pages, displaying copyright information for the website and its author. Additionally, it features a distinctive spinning animation applied to the GitHub logo, inviting users to explore the project's repository on GitHub. The footer also contains links to the Terms & Conditions, Cookie Policy, and Privacy Policy pages.
 
 ![Footer block](documentation/footer.png)
 
@@ -435,6 +435,15 @@ These epics collectively represent the core functionalities and user experiences
 
 ![User managing own comments](documentation/managecomments.png)
 
+* Terms & Conditions page
+	* A dedicated Terms & Conditions page outlines the rules and expectations governing use of the website, covering user accounts, reviews and comments, appointments, third-party services, intellectual property, and governing law. Accessible via a link in the footer on every page.
+
+* Cookie Policy page
+	* A Cookie Policy page explains the cookies set by the site (Django's session and CSRF cookies) and identifies third-party services (Google Maps, Formspree, Calendly) that may set their own cookies. Users are directed to browser settings for cookie management. Accessible via a link in the footer.
+
+* Privacy Policy page
+	* A Privacy Policy page describes what personal data is collected, why it is collected, the lawful basis for processing, how long it is retained, and which third-party processors (Cloudinary, Formspree) handle it. Includes user data rights and details of how to raise a complaint with the ICO. Accessible via a link in the footer.
+
 ### Future Features
 
 In future updates, expect to see additional features enhancing user interaction and platform functionality:
@@ -478,6 +487,7 @@ In future updates, expect to see additional features enhancing user interaction 
 - [Cloudconvert](https://cloudconvert.com/) used to convert images to webp format.
 - [Formspree](https://formspree.io/) used as the contact form backend — submissions bypass Django's email system entirely and are forwarded directly to the site owner by Formspree. User data (name, email, phone, message) is transmitted to Formspree in accordance with their [privacy policy](https://formspree.io/legal/privacy-policy/).
 - [ChatGPT](https://chat.openai.com/) used to generate placeholder text and to verify code.
+- [Claude](https://claude.ai) used to assist with code review, bug fixes, and generating policy page content.
 - [StackOverflow](https://stackoverflow.com/) used to problem solve and deal with queries.
 - [Unsplash](https://unsplash.com/) used to obtain user pictures.
 - [Pexels](https://www.pexels.com/) used to obtain background pictures.

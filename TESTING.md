@@ -253,6 +253,15 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Authenticated users | The buttons "All users" and "My profile" appear | Pass | |
 | | Click the "My profile" button | Redirects user to their profile page | Pass | |
 | | If the user has made a review, click on the "View details" link | Redirects to the review details page | Pass | |
+| Terms & Conditions | | | | |
+| | Click on "Terms & Conditions" link in the footer | User will be redirected to the terms and conditions page | Pass | |
+| | View the page as any user (authenticated or not) | Page renders with all 13 sections visible inside a scrollable card | Pass | |
+| Cookie Policy | | | | |
+| | Click on "Cookie Policy" link in the footer | User will be redirected to the cookie policy page | Pass | |
+| | View the page as any user (authenticated or not) | Page renders with cookie table and third-party cookie details visible | Pass | |
+| Privacy Policy | | | | |
+| | Click on "Privacy Policy" link in the footer | User will be redirected to the privacy policy page | Pass | |
+| | View the page as any user (authenticated or not) | Page renders with data collection, rights, and ICO complaint details visible | Pass | |
 | Contact | | | | |
 | | Click on "Contact" link in the navigation bar | User will be redirected to the contact page | Pass | |
 | | Click on the "Submit" button with form fields that do not meet the minimum validation requirements | User will be prompted to fill the form correctly and the form will nt submit | Pass | |
