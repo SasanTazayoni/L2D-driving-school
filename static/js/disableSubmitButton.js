@@ -8,8 +8,4 @@ document.addEventListener("DOMContentLoaded", function() {
         submitButton.disabled = true;
         resetForm.submit();
     });
-
-    setTimeout(function() {
-        submitButton.disabled = false;
-    }, 3000);
 });
