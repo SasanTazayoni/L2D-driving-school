@@ -34,10 +34,6 @@ class CustomSignupForm(SignupForm):
             raise ValidationError("First name is required")
         return first_name
 
-    class Meta:
-        model = User
-        fields = ['first_name', 'username', 'email', 'password1', 'password2']
-
 
 class UserProfileForm(forms.ModelForm):
     """

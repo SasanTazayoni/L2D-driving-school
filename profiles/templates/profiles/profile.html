@@ -16,7 +16,7 @@
         <div class="col-md-4 col-sm-6">
           <div class="col-12 text-center">
             <h2>{{ profile.user.first_name }}</h2>
-            {% if profile.profile_picture.url %}
+            {% if profile.profile_picture %}
               <img src="{{ profile.profile_picture.url }}" alt="Your current uploaded image" class="profile-image">
             {% else %}
               <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="profile-image">
