@@ -1,7 +1,7 @@
 /* jshint esversion: 11 */
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.location.pathname.endsWith('/profile/edit/')) {  
+    if (document.body.dataset.page === 'edit-profile') {
         const imageDiv = document.querySelector('#profile_picture-clear_id');
         const imageDivParent = imageDiv.parentNode;
         const firstAnchorChild = imageDivParent.querySelector('a');
