@@ -83,7 +83,7 @@
                 <div class="profile-content">
                   <div data-rating>Review rating: {{ profile.review.rating }}</div>
                   <p class="mb-3">{{ profile.review.created_on }}</p>
-                  <p class="pending-approval">{{ profile.review.content | safe }} (pending approval)</p>
+                  <p class="pending-approval">{{ profile.review.content }} (pending approval)</p>
                 </div>
               {% endif %}
             {% else %}
@@ -113,7 +113,7 @@
                   <div class="profile-content mb-4">
                     <p class="mb-3">{{ comment.replied_on }} - <a class="link" href="{% url 'review_detail' comment.review.id %}" class="link">Review by
                       {{ comment.review.author }}</a></p>
-                    <p class="mb-3">{{ comment.content | safe }}</p>
+                    <p class="mb-3">{{ comment.content }}</p>
                     <div class="btn-container d-flex justify-content-center m-0">
                       <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
                         class="blue-button">Edit</a>
@@ -125,7 +125,7 @@
                   <div class="profile-content mb-4">
                     <p class="mb-3">{{ comment.replied_on }} - <a href="{% url 'review_detail' comment.review.id %}" class="link">Review by
                       {{ comment.review.author }}</a></p>
-                    <p class="pending-approval mb-3">{{ comment.content | safe }} (pending approval)</p>
+                    <p class="pending-approval mb-3">{{ comment.content }} (pending approval)</p>
                     <div class="btn-container d-flex justify-content-center m-0">
                       <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
                         class="blue-button">Edit</a>

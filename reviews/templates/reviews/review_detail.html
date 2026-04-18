@@ -42,21 +42,19 @@
                     <div class="comment-icon-container bold">
                         <i class="far fa-comments"></i> {{ comment_count }}
                     </div>
+                    {% if request.user.is_authenticated %}
                     <form action="{% url 'like_review' review_id %}" method="POST" class="like-icon-container">
                         {% csrf_token %}
                         <div class="bold">
-                            {% if request.user.is_authenticated %}
-                                {% if not is_edit_comment_view %}
-                                    <button type="submit" aria-label="{% if liked %}Unlike this review{% else %}Like this review{% endif %}">
-                                    {% if liked %}
-                                        <i class="fa-solid fa-heart animate"></i>
-                                    {% else %}
-                                        <i class="fa-regular fa-heart animate"></i>
-                                    {% endif %}
-                                    </button>
-                                    {% endif %}
+                            {% if not is_edit_comment_view %}
+                                <button type="submit" aria-label="{% if liked %}Unlike this review{% else %}Like this review{% endif %}">
+                                {% if liked %}
+                                    <i class="fa-solid fa-heart animate"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-heart animate"></i>
                                 {% endif %}
-                            {% if not request.user.is_authenticated or is_edit_comment_view %}
+                                </button>
+                            {% else %}
                                 {% if like_count > 0 %}
                                     <i class="fa-solid fa-heart"></i>
                                 {% else %}
@@ -65,10 +63,19 @@
                             {% endif %} {{ like_count }}
                         </div>
                     </form>
+                    {% else %}
+                    <div class="like-icon-container bold">
+                        {% if like_count > 0 %}
+                            <i class="fa-solid fa-heart"></i>
+                        {% else %}
+                            <i class="fa-regular fa-heart"></i>
+                        {% endif %} {{ like_count }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="review-content">
-                {{ review.content | safe }}
+                {{ review.content }}
             </div>
             {% if request.user.is_authenticated and request.user == review.author.user %}
                 <div class="btn-container d-flex justify-content-center mt-3">
@@ -118,7 +125,7 @@
                         <strong>{{ comment.author }}</strong> wrote ({{ comment.replied_on }}):
                     </p>
                     <div id="comment{{ comment.id }}" class="comment-content">
-                        {{ comment.content | safe }}
+                        {{ comment.content }}
                         {% if request.user.is_authenticated and comment.author.user == request.user %}
                             <div class="btn-container d-flex justify-content-center mt-4">
                                 <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
@@ -136,7 +143,7 @@
                         <span class="italic">(pending approval)</span>
                     </p>
                     <div id="comment{{ comment.id }}" class="comment-content">
-                        {{ comment.content | safe }}
+                        {{ comment.content }}
                         {% if request.user.is_authenticated and comment.author.user == request.user %}
                             <div class="btn-container d-flex justify-content-center mt-4">
                                 <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
