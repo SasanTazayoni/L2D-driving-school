@@ -732,6 +732,12 @@ footer {
     text-align: center;
 }
 
+.footer-legal-links {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
 .footer-legal-link {
     color: rgba(0, 0, 0, 0.4);
     font-size: 14px;

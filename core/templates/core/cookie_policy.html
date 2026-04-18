@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head_title %}L2D - Cookie Policy{% endblock head_title %}
+
+{% block content %}
+
+<section class="block--background full-page-block terms-bg">
+    <div class="container py-5 terms-container">
+        <div class="card card--gradient terms-card">
+
+        <header class="page-header">
+            <h1>Cookie Policy</h1>
+        </header>
+
+        <div class="terms-section">
+            <h2>1. What Are Cookies?</h2>
+            <p>
+                Cookies are small text files placed on your device by a website when you visit it.
+                They are widely used to make websites work, or to work more efficiently, and to
+                provide information to the site owner.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>2. How We Use Cookies</h2>
+            <p>
+                L2D Driving School uses only essential cookies that are strictly necessary for the
+                website to function. We do not use any advertising, tracking, or analytics cookies.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>3. Essential Cookies</h2>
+            <p>The following cookies are set by this website:</p>
+            <table class="table table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>Cookie</th>
+                        <th>Purpose</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>sessionid</code></td>
+                        <td>Keeps you logged in as you navigate between pages. Set by Django.</td>
+                        <td>Session (deleted when you close your browser)</td>
+                    </tr>
+                    <tr>
+                        <td><code>csrftoken</code></td>
+                        <td>
+                            Protects against Cross-Site Request Forgery attacks when you submit
+                            forms. Set by Django.
+                        </td>
+                        <td>1 year</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                These cookies are essential for the secure operation of the site. The website
+                cannot function correctly without them.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>4. Third-Party Cookies</h2>
+            <p>
+                Some features on this website involve third-party services that may set their own
+                cookies:
+            </p>
+            <ul class="terms-list">
+                <li>
+                    <strong>Google Maps</strong> — An embedded map is displayed on the Contact
+                    page. Google may set cookies when you interact with the map. These are governed
+                    by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="link">Google's Privacy Policy</a>.
+                </li>
+                <li>
+                    <strong>Formspree</strong> — The contact form submits data to Formspree.
+                    Formspree may set cookies as part of its service. These are governed by
+                    <a href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noopener" class="link">Formspree's Privacy Policy</a>.
+                </li>
+                <li>
+                    <strong>Calendly</strong> — Approved students can book lessons via an embedded
+                    Calendly scheduler. Calendly may set cookies. These are governed by
+                    <a href="https://calendly.com/privacy" target="_blank" rel="noopener" class="link">Calendly's Privacy Policy</a>.
+                </li>
+            </ul>
+            <p>
+                We have no control over third-party cookies. You can block them via your browser
+                settings without affecting your use of the core site features.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>5. Managing Cookies</h2>
+            <p>
+                You can control and delete cookies through your browser settings. Deleting or
+                blocking the <code>sessionid</code> cookie will log you out of the site.
+                Instructions for the most common browsers:
+            </p>
+            <ul class="terms-list">
+                <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener" class="link">Google Chrome</a></li>
+                <li><a href="https://support.mozilla.org/en-US/kb/clear-cookies-and-site-data-firefox" target="_blank" rel="noopener" class="link">Mozilla Firefox</a></li>
+                <li><a href="https://support.apple.com/en-gb/guide/safari/sfri11471/mac" target="_blank" rel="noopener" class="link">Safari</a></li>
+                <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener" class="link">Microsoft Edge</a></li>
+            </ul>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>6. Changes to This Policy</h2>
+            <p>
+                We may update this Cookie Policy from time to time. Any changes will be reflected
+                on this page. Continued use of the site after an update constitutes acceptance of
+                the revised policy.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>7. Contact Us</h2>
+            <p>If you have any questions about our use of cookies, please get in touch:</p>
+            <ul class="terms-contact-list">
+                <li>
+                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                    7 Queens Ave, Muswell Hill, London, N10 3PE
+                </li>
+            </ul>
+            <p>Or use the <a href="{% url 'contact' %}" class="link">contact form</a>.</p>
+        </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

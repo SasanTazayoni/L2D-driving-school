@@ -157,7 +157,10 @@
     <footer class="footer mt-auto py-3 dark-bg">
         {% block copyright %}
         <div class="footer-inner">
-            <a href="{% url 'terms' %}" class="footer-legal-link">Terms &amp; Conditions</a>
+            <div class="footer-legal-links">
+                <a href="{% url 'terms' %}" class="footer-legal-link">Terms &amp; Conditions</a>
+                <a href="{% url 'cookie_policy' %}" class="footer-legal-link">Cookie Policy</a>
+            </div>
             <span class="footer-text">
                 &copy; L2D Driving School 2024. All rights reserved.
                 <a href="https://github.com/SasanTazayoni/L2D-driving-school" target="_blank" rel="noopener"

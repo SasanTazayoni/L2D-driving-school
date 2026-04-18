@@ -86,6 +86,13 @@ def terms_and_conditions(request):
     return render(request, 'core/terms_and_conditions.html')
 
 
+def cookie_policy(request):
+    """
+    Renders the Cookie Policy page.
+    """
+    return render(request, 'core/cookie_policy.html')
+
+
 def profile_detail(request, user_id):
     """
     Renders the profile page for a particular user.

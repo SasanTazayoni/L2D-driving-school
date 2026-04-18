@@ -96,6 +96,18 @@ class TermsAndConditionsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class CookiePolicyViewTest(TestCase):
+    """
+    Test to see if cookie policy page renders correctly.
+    """
+    def test_cookie_policy_view(self):
+        from core.views import cookie_policy
+        factory = RequestFactory()
+        request = factory.get(reverse('cookie_policy'))
+        response = cookie_policy(request)
+        self.assertEqual(response.status_code, 200)
+
+
 class UserProfileSearchViewTest(TestCase):
     """
     Test user search on user profiles page.

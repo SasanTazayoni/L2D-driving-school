@@ -31,6 +31,7 @@ urlpatterns = [
     path("profile/", include("profiles.urls"), name="profile"),
     path("reviews/", include("reviews.urls"), name="reviews"),
     path("terms/", core_views.terms_and_conditions, name="terms"),
+    path("cookies/", core_views.cookie_policy, name="cookie_policy"),
     path("summernote/", include("django_summernote.urls")),
     path("user-profiles/", include("core.urls"), name="user-profiles"),
 ]
