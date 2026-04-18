@@ -287,7 +287,8 @@ These epics collectively represent the core functionalities and user experiences
 ![Pagination for the gallery](documentation/gallerypagination.png)
 
 * Contact page
-	* The contact page is composed of a user-friendly contact form designed for inquiries, accompanied by a concise contact information card. This card contains essential details such as the venue address, contact number, email address, and a Google Maps image 	providing users with clear and accessible means of communication.
+	* The contact page is composed of a user-friendly contact form alongside a contact information card showing the venue address and an embedded Google Maps view.
+	* **Note for developers:** The contact form is processed by [Formspree](https://formspree.io/), a third-party service — submissions are sent directly to Formspree's servers and forwarded to the site owner's inbox. This is independent of Django's email backend, so `EMAIL_HOST_USER` and `EMAIL_HOST_PASS` are **not** required for the contact form to work. Users are shown a disclosure notice informing them that their name, email, phone number, and message will be handled by Formspree before being passed to the instructor.
 
 ![Contact page](documentation/contactpage.png)
 
@@ -475,7 +476,7 @@ In future updates, expect to see additional features enhancing user interaction 
 - [Photoshop](https://www.adobe.com/uk/products/photoshop/) used to resize photos.
 - [Tinypng](https://tinypng.com/) used to compress image files for better performance.
 - [Cloudconvert](https://cloudconvert.com/) used to convert images to webp format.
-- [Formspree](https://formspree.io/) used in the contact form to provide a backend, enabling efficient routing of email enquiries directly to the business owner.
+- [Formspree](https://formspree.io/) used as the contact form backend — submissions bypass Django's email system entirely and are forwarded directly to the site owner by Formspree. User data (name, email, phone, message) is transmitted to Formspree in accordance with their [privacy policy](https://formspree.io/legal/privacy-policy/).
 - [ChatGPT](https://chat.openai.com/) used to generate placeholder text and to verify code.
 - [StackOverflow](https://stackoverflow.com/) used to problem solve and deal with queries.
 - [Unsplash](https://unsplash.com/) used to obtain user pictures.
