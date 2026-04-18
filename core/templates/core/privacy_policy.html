@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head_title %}L2D - Privacy Policy{% endblock head_title %}
+
+{% block content %}
+
+<section class="block--background full-page-block terms-bg">
+    <div class="container py-5 terms-container">
+        <div class="card card--gradient terms-card">
+
+        <header class="page-header">
+            <h1>Privacy Policy</h1>
+        </header>
+
+        <div class="terms-section">
+            <p>This privacy notice tells you what to expect us to do with your personal information.</p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>1. What Information We Collect and Why</h2>
+
+            <h3>To operate your account</h3>
+            <ul class="terms-list">
+                <li>Username, email address, and password (hashed)</li>
+                <li>First name and last name</li>
+                <li>Profile picture (if uploaded)</li>
+                <li>About me text (if provided)</li>
+            </ul>
+
+            <h3>To display reviews and comments</h3>
+            <ul class="terms-list">
+                <li>Review content and star rating you submit</li>
+                <li>Comments you leave on reviews</li>
+            </ul>
+
+            <h3>To handle enquiries</h3>
+            <ul class="terms-list">
+                <li>Name, email address, phone number, and message submitted via the contact form</li>
+            </ul>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>2. Lawful Bases and Your Rights</h2>
+            <p>
+                Under UK data protection law, we must have a lawful basis for collecting and using your
+                personal information. You can find out more on the
+                <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/lawful-basis/a-guide-to-lawful-basis/"
+                    target="_blank" rel="noopener" class="link">ICO's website</a>.
+            </p>
+            <ul class="terms-list">
+                <li><strong>Account and profile data:</strong> Contract — necessary to provide the service.</li>
+                <li><strong>Reviews and comments:</strong> Contract — you agree to these terms when registering.</li>
+                <li><strong>Contact enquiries:</strong> Legitimate interests — to respond to your message.</li>
+            </ul>
+
+            <p>Your data protection rights include:</p>
+            <ul class="terms-list">
+                <li><strong>Right of access</strong> — you can ask for copies of your personal information.</li>
+                <li><strong>Right to rectification</strong> — you can ask us to correct inaccurate information.</li>
+                <li><strong>Right to erasure</strong> — you can ask us to delete your personal information.</li>
+                <li><strong>Right to restriction</strong> — you can ask us to limit how we use your information.</li>
+                <li><strong>Right to object</strong> — you can object to our processing of your data.</li>
+                <li><strong>Right to data portability</strong> — you can ask us to transfer your information.</li>
+            </ul>
+            <p>
+                To make a request, please use our <a href="{% url 'contact' %}" class="link">contact form</a>.
+                We will respond within one week.
+            </p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>3. Where We Get Your Information From</h2>
+            <p>Directly from you — when you create an account, submit a review or comment, or contact us.</p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>4. How Long We Keep Your Information</h2>
+            <ul class="terms-list">
+                <li><strong>Account and profile data:</strong> kept while your account is active; deleted upon account deletion.</li>
+                <li><strong>Reviews and comments:</strong> kept while your account is active; removed when your account is deleted.</li>
+                <li><strong>Contact enquiries:</strong> not stored on this site — handled by Formspree (see below).</li>
+            </ul>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>5. Who We Share Your Information With</h2>
+
+            <h3>Cloudinary</h3>
+            <p>
+                Profile pictures are stored and served by Cloudinary. Cloudinary's privacy policy is available at
+                <a href="https://cloudinary.com/privacy" target="_blank" rel="noopener" class="link">cloudinary.com/privacy</a>.
+            </p>
+
+            <h3>Formspree</h3>
+            <p>
+                Contact form submissions are processed by Formspree, which forwards them to us by email.
+                Formspree's privacy policy is available at
+                <a href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noopener" class="link">formspree.io/legal/privacy-policy</a>.
+            </p>
+
+            <p>We do not sell, rent, or share your personal data with any other third parties.</p>
+        </div>
+        <hr>
+
+        <div class="terms-section">
+            <h2>6. How to Complain</h2>
+            <p>
+                If you have concerns about how we handle your personal data, please contact us via the
+                <a href="{% url 'contact' %}" class="link">contact form</a>.
+            </p>
+            <p>
+                If you remain unhappy after raising a complaint with us, you can also complain to the
+                Information Commissioner's Office (ICO):
+            </p>
+            <address class="ms-3 mb-3">
+                Information Commissioner's Office<br>
+                Wycliffe House, Water Lane<br>
+                Wilmslow, Cheshire, SK9 5AF
+            </address>
+            <p>Helpline: 0303 123 1113</p>
+            <p>
+                Website: <a href="https://www.ico.org.uk/make-a-complaint" target="_blank" rel="noopener" class="link">ico.org.uk/make-a-complaint</a>
+            </p>
+        </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

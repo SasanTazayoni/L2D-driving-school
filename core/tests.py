@@ -108,6 +108,28 @@ class CookiePolicyViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class PrivacyPolicyViewTest(TestCase):
+    """
+    Test to see if privacy policy page renders correctly.
+    """
+    def test_privacy_policy_view(self):
+        from core.views import privacy_policy
+        factory = RequestFactory()
+        request = factory.get(reverse('privacy_policy'))
+        response = privacy_policy(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_privacy_policy_response_time(self):
+        """
+        Privacy policy response should state one week turnaround.
+        """
+        from core.views import privacy_policy
+        factory = RequestFactory()
+        request = factory.get(reverse('privacy_policy'))
+        response = privacy_policy(request)
+        self.assertContains(response, 'one week')
+
+
 class UserProfileSearchViewTest(TestCase):
     """
     Test user search on user profiles page.

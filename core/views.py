@@ -93,6 +93,13 @@ def cookie_policy(request):
     return render(request, 'core/cookie_policy.html')
 
 
+def privacy_policy(request):
+    """
+    Renders the Privacy Policy page.
+    """
+    return render(request, 'core/privacy_policy.html')
+
+
 def profile_detail(request, user_id):
     """
     Renders the profile page for a particular user.
