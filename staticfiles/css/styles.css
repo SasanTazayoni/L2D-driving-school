@@ -814,38 +814,6 @@ footer i {
     font-size: 20px;
 }
 
-.github-link i:hover {
-    animation: spin 0.3s forwards;
-}
-
-.github-link i:not(:hover) {
-    animation: spin-backward 0.3s forwards;
-}
-
-@keyframes spin {
-    0% { 
-        transform: rotateY(0deg);
-        color: rgba(0, 0, 0, 0.4);
-    }
-    100% { 
-        transform: rotateY(360deg);
-        color: #000;
-        filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0.6));
-    }
-}
-
-@keyframes spin-backward {
-    0% {
-        transform: rotateY(360deg);
-        color: #000;
-        filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0.6));
-    }
-    100% {
-        transform: rotateY(0deg);
-        color: rgba(0, 0, 0, 0.4);
-    }
-}
-
 @media screen and (max-width: 768px) {
     .footer-text {
         font-size: 14px;
