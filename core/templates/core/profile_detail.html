@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block head_title %}{% trans "L2D - User Profile" %}{% endblock head_title %}
+{% block head_title %}{{ user_profile.user.first_name }}'s Driving Profile | L2D Driving School{% endblock head_title %}
 
 {% block content %}
 

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block head_title %}{% trans "L2D - Review Detail" %}{% endblock head_title %}
+{% block head_title %}{{ review.author.user.username }}'s {{ review.rating }}-Star Review | L2D Driving School{% endblock head_title %}
 
 {% block content %}
 <section class="block--grey full-page-block d-flex justify-content-center align-items-center flex-column">
