@@ -16,9 +16,9 @@
             </header>
             <div class="review-card-header">
                 {% if review.author.profile_picture %}
-                    <img src="{{ review.author.profile_picture.url }}" alt="User:{{ review.author.user.username }}" class="review-image">
+                    <img src="{{ review.author.profile_picture.url }}" alt="User:{{ review.author.user.username }}" class="review-image" loading="lazy">
                 {% else %}
-                    <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="review-image">
+                    <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="review-image" loading="lazy">
                 {% endif %}
                 <div class="review-header-text">
                     <span class="review-header">

@@ -39,9 +39,9 @@
                         <a href="{% if user_profile.user == request.user %}{% url 'profile_page' %}{% else %}{% url 'profile_detail' user_profile.user.id %}{% endif %}"
                             class="card h-100 profile-card">
                             {% if user_profile.profile_picture %}
-                                <img src="{{ user_profile.profile_picture.url }}" alt="User:{{ user_profile.user.first_name }}" class="profile-images">
+                                <img src="{{ user_profile.profile_picture.url }}" alt="User:{{ user_profile.user.first_name }}" class="profile-images" loading="lazy">
                             {% else %}
-                                <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="profile-images">
+                                <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="profile-images" loading="lazy">
                             {% endif %}
                             <h5 class="card-text text-center">{{ user_profile.user.first_name }}</h5>
                         </a>

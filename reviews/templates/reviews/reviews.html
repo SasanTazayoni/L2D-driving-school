@@ -72,10 +72,10 @@
                             <div class="d-flex align-items-center justify-content-between review-card-header--small">
                                 {% if review.author.profile_picture %}
                                 <img src="{{ review.author.profile_picture.url }}" alt="User:{{ review.author.username }}"
-                                    class="review-image">
+                                    class="review-image" loading="lazy">
                                 {% else %}
                                 <img src="{% static 'images/defaultpicture.png' %}" alt="Default user image"
-                                    class="review-image">
+                                    class="review-image" loading="lazy">
                                 {% endif %}
                                 <p class="text-center px-2 review-header-text-small">
                                     <strong class="review-author">{{ review.author|truncatechars:16 }}</strong>
