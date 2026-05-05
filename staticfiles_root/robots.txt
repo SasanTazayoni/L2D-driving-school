@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /summernote/
+Disallow: /appointments/
+Disallow: /profile/
+
+Sitemap: https://yourdomain.com/sitemap.xml

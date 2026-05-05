@@ -17,8 +17,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.sitemaps.views import sitemap
 from core import views as core_views
+from l2d.sitemaps import StaticViewSitemap, ReviewSitemap, ProfileSitemap
 
+sitemaps = {
+    'static': StaticViewSitemap,
+    'reviews': ReviewSitemap,
+    'profiles': ProfileSitemap,
+}
 
 handler404 = 'l2d.views.handler404'
 
@@ -35,4 +42,5 @@ urlpatterns = [
     path("privacy/", core_views.privacy_policy, name="privacy_policy"),
     path("summernote/", include("django_summernote.urls")),
     path("user-profiles/", include("core.urls"), name="user-profiles"),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 ]
