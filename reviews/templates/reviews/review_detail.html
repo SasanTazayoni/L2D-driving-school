@@ -4,6 +4,8 @@
 
 {% block head_title %}{{ review.author.user.username }}'s {{ review.rating }}-Star Review | L2D Driving School{% endblock head_title %}
 
+{% block meta_description %}{{ review.author.user.username }} rated L2D Driving School {{ review.rating }} out of 5 stars. Read the full review and comments from fellow learners.{% endblock meta_description %}
+
 {% block content %}
 <section class="block--grey full-page-block d-flex justify-content-center align-items-center flex-column">
     <div class="container mt-5 mb-2">
