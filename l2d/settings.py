@@ -89,7 +89,10 @@ ACCOUNT_SIGNUP_REDIRECT_URL = '/profile/edit/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = False
-ACCOUNT_USERNAME_REQUIRED = True
+# Username, email and both password fields are all required at signup
+# (replaces ACCOUNT_USERNAME_REQUIRED / ACCOUNT_EMAIL_REQUIRED, deprecated
+# in django-allauth 65).
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
 
 
@@ -159,7 +162,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},  # noqa
 ]
 
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {
     'signup': 'profiles.forms.CustomSignupForm',
