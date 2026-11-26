@@ -672,6 +672,25 @@ a.red-button,
     }
 }
 
+/* Inline SVG icons (templates/includes/icon.html), sized like Font Awesome */
+.icon {
+    display: inline-block;
+    height: 1em;
+    overflow: visible;
+    vertical-align: -0.125em;
+    fill: currentColor;
+}
+
+.icon-fw {
+    width: 1.25em;
+}
+
+.icon-xl {
+    font-size: 1.5em;
+    line-height: 0.04167em;
+    vertical-align: -0.125em;
+}
+
 /* Messages */
 
 [data-alert] {
@@ -1136,8 +1155,8 @@ footer i {
     font-size: 18px;
 }
 
-.comment-icon-container > i,
-.comment-icon-container-small > i {
+.comment-icon-container > .icon,
+.comment-icon-container-small > .icon {
     color: rgba(0, 0, 0, 0.4);
 }
 
@@ -1157,8 +1176,8 @@ footer i {
     font-size: 18px;
 }
 
-.like-icon-container i,
-.like-icon-container-small i {
+.like-icon-container .icon,
+.like-icon-container-small .icon {
     color: var(--color-accent);
     transition: all 0.3s;
 }

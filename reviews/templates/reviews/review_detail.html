@@ -48,13 +48,13 @@
                 <div class="d-flex">
                     {% if request.user.is_authenticated and review.approved and not is_edit_comment_view %}
                         <div class="comment-icon-container bold">
-                            <i class="far fa-comments" aria-hidden="true"></i> {{ comment_count }}<span class="visually-hidden"> comment{{ comment_count|pluralize }}</span>
+                            {% include "includes/icon.html" with name="comments" %} {{ comment_count }}<span class="visually-hidden"> comment{{ comment_count|pluralize }}</span>
                         </div>
                         <form action="{% url 'like_review' review_id %}" method="POST" class="like-icon-container">
                             {% csrf_token %}
                             <div class="bold">
                                 <button type="submit" aria-label="{% if liked %}Unlike this review{% else %}Like this review{% endif %}">
-                                    <i class="{% if liked %}fa-solid{% else %}fa-regular{% endif %} fa-heart animate" aria-hidden="true"></i>
+                                    {% if liked %}{% include "includes/icon.html" with name="heart" classes="animate" %}{% else %}{% include "includes/icon.html" with name="heart-outline" classes="animate" %}{% endif %}
                                 </button>
                                 {{ like_count }}<span class="visually-hidden"> like{{ like_count|pluralize }}</span>
                             </div>
