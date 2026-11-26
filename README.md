@@ -34,7 +34,7 @@ You can access the application [here](https://l2d-driving-school-6f23811ec0fb.he
 
 ### 2. Review & Comment Moderation System
 **Challenge:** Needed content moderation to maintain quality while allowing user engagement through reviews and comments.  
-**Solution:** Built dual-approval system where both reviews and comments require admin approval before publication. Users can see their pending content on profile pages, while approved content appears publicly with full CRUD functionality.
+**Solution:** Reviews require admin approval before they are published, and editing an approved review sends it back for approval, so moderated content cannot be changed afterwards without being checked again. Reviews awaiting approval are only visible to their author and to staff (anyone else gets a "page not found"). Comments are published immediately to keep discussions flowing; staff can hide any comment from the admin panel without deleting it.
 
 ### 3. One Review Per User Restriction
 **Challenge:** Preventing users from spamming multiple reviews while allowing genuine feedback.  
@@ -42,7 +42,7 @@ You can access the application [here](https://l2d-driving-school-6f23811ec0fb.he
 
 ### 4. Calendly Integration for Appointments
 **Challenge:** Building a robust appointment scheduling system from scratch would exceed project scope.  
-**Solution:** Integrated Calendly API for professional appointment management, leveraging existing scheduling infrastructure while maintaining seamless user experience within the platform.
+**Solution:** Embedded Calendly's scheduling widget for professional appointment management, leveraging existing scheduling infrastructure while maintaining seamless user experience within the platform.
 
 ### 5. Complex Permission System
 **Challenge:** Different user states required different access levels (unauthenticated, authenticated, admin-approved).  
@@ -50,7 +50,7 @@ You can access the application [here](https://l2d-driving-school-6f23811ec0fb.he
 
 ### 6. Password Reset Email Workflow
 **Challenge:** Secure password reset mechanism with token-based authentication.  
-**Solution:** Integrated Gmail API for sending password reset emails with secure tokens, implementing environment-specific behavior (terminal output in development, actual emails in production).
+**Solution:** Configured Django to send password reset emails through Gmail's SMTP server (using a Gmail app password), with secure one-time links and environment-specific behaviour (emails printed to the terminal in development, sent for real in production).
 
 ### 7. Image Upload & Storage
 **Challenge:** Heroku's ephemeral storage doesn't persist user-uploaded images like profile pictures.  
@@ -58,7 +58,16 @@ You can access the application [here](https://l2d-driving-school-6f23811ec0fb.he
 
 ### 8. Paginated Content Display
 **Challenge:** Large amounts of reviews and user profiles needed efficient display without overwhelming users.  
-**Solution:** Implemented Django pagination for reviews (per page) and user gallery (12 per page) with custom JavaScript-enhanced navigation buttons, improving load times and user experience.
+**Solution:** Implemented Django pagination for reviews (6 per page) and the user gallery (12 per page). Page links keep any active search, so browsing the results of a search works with or without JavaScript.
+
+
+### 9. Security Hardening
+**Challenge:** A public site with user accounts and user-generated content needs protection beyond the framework defaults.
+**Solution:** HTTPS is enforced on Heroku (redirects, secure cookies and HSTS). User-entered text is always HTML-escaped to prevent cross-site scripting. Actions that change data (liking, commenting, editing) only accept genuine form submissions, the rich-text editor's file upload endpoint is disabled, the read-only email field is enforced on the server, and the app refuses to start on Heroku if a required configuration variable is missing. Each of these is covered by automated tests.
+
+### 10. Performance
+**Challenge:** Pages listing reviews, comments and users became slower as content grew, and static files were re-downloaded on every visit.
+**Solution:** Related data is loaded in a fixed number of database queries per page regardless of how many comments or reviews there are (with tests that fail if that regresses), frequently filtered columns are indexed, and WhiteNoise serves compressed static files with content-hashed names so browsers can cache them for a year.
 
 
 ## User Experience
@@ -84,7 +93,7 @@ The carefully curated colour scheme for this website has been meticulously selec
 
 The combination of Montserrat for headings and Noto Sans for body text offers a well-balanced and professional aesthetic for a driving school website. The pairing achieves a harmonious contrast, with Montserrat's bold and modern design providing distinction for headings, while Noto Sans ensures optimal readability in body text. The fonts share a clean and contemporary style, fostering consistency and a unified look throughout the website. Their versatility allows for adaptability in different design elements, while Noto Sans' extensive character support promotes accessibility for a diverse audience. Overall, this font pairing creates a visually appealing and credible online presence for the driving school.
 
-[Font Awesome](https://fontawesome.com) icons were used throughout the site - on the github footer link, on the contact page and on the review cards.
+Icons (rating stars, likes, comments and the location pin) are inline SVGs taken from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0). Using only the handful of icons the site needs, rather than the whole Font Awesome stylesheet and icon fonts, keeps every page lighter.
 
 ### User Stories
 
@@ -239,13 +248,13 @@ These epics collectively represent the core functionalities and user experiences
 ![Navbar dropdown menu](documentation/navmenudropdown.png)
 
 * Footer
-	* The footer block appears on all pages, displaying copyright information for the website and its author. Additionally, it features a distinctive spinning animation applied to the GitHub logo, inviting users to explore the project's repository on GitHub. The footer also contains links to the Terms & Conditions, Cookie Policy, and Privacy Policy pages.
+	* The footer block appears on all pages, displaying copyright information for the website along with links to the Terms & Conditions, Cookie Policy, and Privacy Policy pages.
 
 ![Footer block](documentation/footer.png)
 
 * Home page
 	* The home page features a captivating first-person view from the driver's seat, depicting a car journey on a bustling motorway. This immersive visual immediately communicates the central theme of the website: driving.
-	* After 3 seconds, an overlay gracefully emerges atop the image, presenting a user-friendly prompt box with a title (the website brand) designed to engage the visitor. Depending on the user's authentication status, distinct call-to-action buttons are displayed. 	If the user is not authenticated, the left button prompts them to sign up. If the user is authenticated, the button directs them to explore reviews. For authenticated users whose profiles are approved, the button facilitates scheduling appointments. This 		feature is useful because it provides a clear and concise call to action tailored to the user's authentication status. By presenting different options based on whether the user is authenticated and if their profile is approved, the website streamlines the user 	experience and guides them towards relevant actions. This personalised approach helps users easily navigate the site and encourages them to take specific actions based on their current status, ultimately improving user engagement and conversion rates.
+	* A darkened overlay sits atop the image as soon as the page loads, presenting a user-friendly prompt box with a title (the website brand) designed to engage the visitor. Depending on the user's authentication status, distinct call-to-action buttons are displayed. If the user is not authenticated, the left button prompts them to sign up. If the user is authenticated, the button directs them to explore reviews. For authenticated users whose profiles are approved, the button facilitates scheduling appointments. This feature is useful because it provides a clear and concise call to action tailored to the user's authentication status, straight away, without the visitor having to wait for it to appear.
 
 ![Home page](documentation/homepage.png)
 
@@ -258,14 +267,14 @@ These epics collectively represent the core functionalities and user experiences
 
 * Django messages
 	* Django messages are displayed prominently at the top of the page following user actions, such as logging in or submitting content. This feature ensures that users receive immediate feedback regarding the success/failure of their interactions with the 		website, contributing to a seamless and intuitive user experience.
-	* The Django messages have been tailored to enhance user experience by employing a customised design. These messages gracefully fade out after 5 seconds, ensuring a non-intrusive display. Positioned directly beneath the navigation bar using absolute 		positioning, they seamlessly integrate into the page layout without disrupting the user's browsing flow. This approach not only prioritizes aesthetics but also maintains the page's overall cohesion and usability.
+	* The Django messages have been tailored to enhance user experience by employing a customised design, positioned directly beneath the navigation bar so they don't disrupt the page layout. Every message has a small close (×) button in its top-right corner that fades it out quickly. Success and information messages also fade out by themselves after a few seconds, pausing while the user hovers over or focuses them; error and warning messages stay until the user closes them, so important feedback (such as not yet being authorised to book) can't be missed. Screen readers announce errors immediately and other messages politely.
    
 ![Django message example](documentation/messages.png)
 
 * Reviews page
 	* The reviews page is structured into two main sections: an "about me" segment introducing the driving instructor and a reviews section. The "about me" section serves as a vital introduction to the driving instructor, providing potential clients with essential 	information about their background, experience, teaching approach and any other pertinent details. Additionally, the "about me" segment can help establish trust and rapport between the instructor and prospective clients, fostering a sense of connection and 	confidence in their abilities. Overall, including an "about me" section enhances transparency, allows for better informed decision-making, and contributes to a positive user experience on the website. In the reviews section, users are greeted with an 		introductory paragraph followed by the average rating derived from all reviews. A paginated list of reviews is then presented where each review is presented in a card format, featuring key details such as the review author, rating, number of likes and comments 	on the review, along with a snippet of the review content. This layout offers users a comprehensive overview of the driving instructor's profile and feedback from previous clients.
  	* The hover effect on the review cards adds a visually appealing touch to the user interface, enhancing the interactivity and engagement of the reviews section. When users hover over a review card, the subtle shine effect creates the illusion the card's surface 	catching light, drawing attention to it and signaling interactivity. This effect not only adds a touch of realism and dynamism to the design but also provides users with visual feedback, indicating that the card is interactive and inviting them to explore 	further. Overall, the hover effect contributes to a more immersive and enjoyable user experience on the website.
-	* The pagination buttons are designed to resemble blue buttons, with a consistent hover effect that signals their interactivity. When clicked, active pagination buttons retain their dark blue colour, ensuring clarity in user navigation and interaction.
+	* The pagination buttons are designed to resemble blue buttons, with a consistent hover effect that signals their interactivity. The button for the current page keeps its dark blue colour and has no hover effect, since it isn't a link to anywhere new.
 
 ![About me card](documentation/aboutmecard.png)
 
@@ -276,8 +285,8 @@ These epics collectively represent the core functionalities and user experiences
 ![Pagination for the reviews with page 3 hovered](documentation/pagination.png)
 
 * All users page
-	* The "All Users" page features a search bar at the top, allowing users to easily search for specific users which can be done by inputting characters in the search bar and clicking "Search". The "Show all" button displays all users.
-	* Below the search bar, there is a paginated gallery displaying users, with 12 users shown per page for optimal browsing experience.
+	* The "All Users" page features a search bar at the top, allowing users to easily search for specific users which can be done by inputting characters in the search bar and clicking "Search". The "Show all" button displays all users. Moving between pages of search results keeps the search.
+	* Below the search bar, there is a paginated gallery displaying users, with 12 users shown per page for optimal browsing experience. Only profiles approved by the admin are listed (staff accounts are never shown), which protects the personal details of people who have only just signed up.
  	* The user gallery thumbnails exhibit a hover effect that enhances their opacity and slightly enlarges the thumbnail, providing a visual indication of interactivity when users hover over them.
  
 ![User search bar](documentation/searchbar.png)
@@ -293,13 +302,15 @@ These epics collectively represent the core functionalities and user experiences
 ![Contact page](documentation/contactpage.png)
 
 * All forms
-	* When users interact with the form fields throughout the website, they become highlighted with a dark blue color, indicating that the field is currently in focus. Highlighting form fields when focused provides clear visual feedback to users, making it easier 	for them to identify the active field and input their information accurately.
+	* When users interact with the form fields throughout the website, they become highlighted with a dark blue color, indicating that the field is currently in focus. Highlighting form fields when focused provides clear visual feedback to users, making it easier for them to identify the active field and input their information accurately.
+
+	* Forms that create or change data (log in, sign up, password reset, reviews, comments and profile editing) disable their submit button once the form has been sent. This prevents an accidental double click from submitting the same form twice.
 
 ![Focused form field vs non-focused](documentation/highlightedfield.png)
 
 * Authentication page
 	* The template background depicts a scenic landscape featuring a lengthy road winding through mountainous terrain. This imagery is metaphorically intended to symbolize the journey of learning to drive and the progression towards mastering the skill. The 		expansive road stretching into the distance evokes a sense of exploration and adventure, mirroring the experience of embarking on the road to becoming a confident driver. This thematic backdrop not only adds visual appeal to the website but also conveys the 	essence of the driving experience, creating a cohesive and immersive environment for visitors.
-	* Upon successful login or signup, users are redirected to the home page, ensuring a smooth transition and immediate access to the platform's content and features. This functionality enhances user experience by eliminating unnecessary steps and providing quick 	access to the main interface, thereby improving usability and user satisfaction.
+	* Upon successful login, users are redirected to the home page. After signing up, new users are taken straight to the edit profile page so they can complete their details.
 
 * Authentication page - Log in form
     	* When accessing the login page, users who are not authenticated can do so by clicking the authentication button labeled "Login/Sign up" located within the navbar.
@@ -316,7 +327,7 @@ These epics collectively represent the core functionalities and user experiences
 ![Login form error](documentation/loginerror.png)
 
 * Authentication page - Sign up form
-	* The sign-up process includes validations to ensure data accuracy and security. It checks that the email address is unique, passwords match, and the chosen username is available. Additionally, all fields must be filled out to prevent incomplete submissions. 	These measures ensure a smooth and secure registration experience.
+	* The sign-up process includes validations to ensure data accuracy and security. It checks that the email address is unique, passwords match, and the chosen username is available (both checks ignore upper/lower case, so "Alex" and "alex" count as the same username). Additionally, all fields must be filled out to prevent incomplete submissions. These measures ensure a smooth and secure registration experience.
 	* The "Sign up" button initiates the process of registering a new user and creating a new account in the database, enabling users to access more of the platform's features and services. Conversely, the "Reset" button provides a convenient way for users to clear 	the form, allowing them to start over if they need to revise their input or if they accidentally enter incorrect information. These features are useful as they streamline the user experience, facilitating smooth sign-up processes and reducing frustration 		associated with form errors or unwanted inputs.
 	* The "Log in here" link conveniently toggles the login page, allowing users to transition to the login process when they are already registered. This functionality is useful as it provides users with a direct and accessible way to access the login page from 	other parts of the website, facilitating seamless access to their accounts for those who are already registered.
 	* Similar to the login form, error messages are displayed if the criteria are not met during the sign-up process. Error messages during the sign-up process are useful as they provide feedback to users about the criteria they need to meet in order to 		successfully create an account. This helps users understand why their sign-up attempt failed and how they can rectify the issues to proceed with the sign-up process.
@@ -372,16 +383,16 @@ These epics collectively represent the core functionalities and user experiences
 
 * Profile page
 	* The profile page provides users with a comprehensive overview of their account details and activities. Here, authenticated users can easily access and manage their profile information, including the option to edit or delete their profile. Additionally, users 	can conveniently add a review if they haven't already done so, or interact with their existing reviews by viewing, editing, or deleting them as needed. Furthermore, users have the ability to engage with comments on other users' reviews, allowing for seamless 	interaction and moderation within the platform. This centralised hub empowers users to control their online presence and contribute to the community in a meaningful way.
-	* When users choose to edit their profile, they are directed to the user profile form, where they can update their personal information and preferences (email is read-only) with the option to save or cancel. This streamlined process ensures that users can 	easily make changes to their profiles without navigating through multiple pages or complex interfaces. By providing a user-friendly editing interface, the platform enhances user experience and encourages active engagement with profile customisation.
+	* When users choose to edit their profile, they are directed to the user profile form, where they can update their personal information and preferences with the option to save or cancel. The email address is shown for reference but cannot be changed through this form (this is enforced on the server, not just in the browser). Users who already have a profile picture see a preview of it, along with options to upload a replacement or remove it.
 	* Upon selecting the option to delete their profile, users are presented with a modal dialog box that requests confirmation before proceeding with the deletion. This approach serves as a safeguard against accidental deletions, allowing users to reconsider their 	decision and providing an additional layer of security for account management. By incorporating this confirmation step, the platform mitigates the risk of unintentional profile deletions, ensuring that users have a chance to confirm their actions before 		permanent changes are made to their accounts.
  	* Users who haven't submitted a review yet are granted the option to provide feedback on the service. However, to prevent misuse or spamming, each user is limited to submitting only one review. This approach ensures that reviews are genuine and relevant, 		maintaining the integrity of the feedback system. By offering users the opportunity to share their experiences while implementing restrictions to prevent abuse, the platform fosters a trustworthy environment where genuine feedback is valued and meaningful.
-	* Before approval by the admin, reviews remain unpublished and are displayed in a greyed-out format on the reviews page. These pending reviews are only accessible to the user who submitted them, viewable solely on their profile page. This approach ensures that 	only verified and appropriate reviews are showcased on the public reviews page, maintaining the quality and reliability of the content visible to other users. By subjecting reviews to admin approval before publication, the platform upholds standards of 		authenticity and relevance, fostering trust and credibility among users.
+	* Before approval by the admin, reviews remain unpublished and are displayed in a greyed-out format on the user's own profile page. A pending review can be opened by its author (and by staff), where a notice explains that it is not public yet; anyone else trying to open it sees a "page not found". Editing an approved review sends it back for approval, so moderated content cannot be changed afterwards without being checked again. This approach ensures that only verified and appropriate reviews are showcased on the public reviews page, maintaining the quality and reliability of the content visible to other users.
 	* Displayed approved reviews feature comprehensive details including the review content, date of the review, the number of comments, likes and rating. Users are provided with convenient options to edit or delete their reviews directly from the profile page. 	This functionality enhances user engagement by offering an efficient way for users to manage their reviews, ensuring they can maintain the accuracy and relevance of their contributions over time. Additionally, it empowers users to maintain control over their 	content and fosters a sense of ownership within the platform community.
 	* Users who have submitted reviews have the ability to access their reviews in detail, along with any associated comments, by selecting the "View details" option. This action redirects them to the review details page, offering a comprehensive overview of their 	contribution and any ensuing discussions. This functionality proves beneficial as it empowers users to monitor interactions and engage with feedback on their reviews, fostering a sense of ownership and accountability for their contributions to the platform's 	community.
 	* When users choose to edit their reviews, they are presented with the review form, facilitating the process of refining and updating their feedback with the option to save or cancel. This functionality is valuable as it enables users to maintain the accuracy 	and relevance of their contributions over time. Additionally, it empowers users to reflect on their experiences and make necessary adjustments to their reviews, ensuring that their feedback remains informative and helpful to others in the community.
 	* When users opt to delete their reviews, a modal window appears, offering them the choice to confirm or cancel the action. This feature serves as a safeguard, providing users with an opportunity to reconsider their decision before permanently removing their 	review. Additionally, it helps prevent accidental deletions and encourages users to take deliberate actions, ensuring the integrity and reliability of the content on the platform.
-	* Initially, comments made by users are displayed in a greyed-out state and are only visible on the profile page of the respective user. This setup ensures that comments undergo moderation by an administrator before being publicly accessible, maintaining the 	quality and appropriateness of content across the platform. Additionally, comments awaiting approval do not appear on review details pages until they are vetted by an admin. If a user has not made any comments, their profile page remains unaltered, contributing 	to a streamlined and clutter-free user experience.
-	* Approved comments prominently display essential information such as the author of the review being commented on, the date of the comment and the comment content. Users are provided with convenient buttons to edit or delete their comments directly from their 	profile page, offering them control over their contributions and fostering a sense of ownership within the platform community. This functionality enhances user engagement by facilitating seamless interaction with comments, allowing users to ensure the accuracy 	and relevance of their contributions over time.
+	* Comments are published as soon as they are posted and remain published when edited, keeping discussions flowing. Staff can still hide any comment from the admin panel without deleting it; a hidden comment is shown greyed out with "(hidden by admin)" to its author only. If a user has not made any comments, their profile page remains unaltered, contributing to a streamlined and clutter-free user experience.
+	* Comments on the profile page display essential information such as the author of the review being commented on, the date of the comment and the comment content. Users are provided with convenient buttons to edit or delete their comments directly from their profile page, offering them control over their contributions and fostering a sense of ownership within the platform community.
 	* Users have the option to edit their comments by utilising the "Edit Comment" button, which redirects them to the review details page housing the comment form with the option to save or cancel. This functionality empowers users to modify their comments as 	needed, enhancing their ability to accurately express their opinions and thoughts on the platform.
 	* Selecting the "Delete Comment" button triggers a modal that provides users with the choice to either proceed with deleting their comment or cancel the action. This feature serves as a safeguard, ensuring users have the opportunity to confirm their decision 	before permanently removing their comment from the platform. It enhances user control over their contributions and fosters a sense of ownership and responsibility for their interactions within the community.
 
@@ -401,7 +412,7 @@ These epics collectively represent the core functionalities and user experiences
 
 ![Delete review modal](documentation/deletereviewmodal.png)
 
-![Comment pending approval](documentation/commentpending.png)
+![Comment hidden by admin](documentation/commentpending.png)
 
 ![Approved comment](documentation/approvedcomment.png)
 
@@ -410,7 +421,7 @@ These epics collectively represent the core functionalities and user experiences
 ![Delete comment modal](documentation/deletecommentmodal.png)
 
 * User profile page
-	* When viewing another user's profile, the layout mirrors the structure of the user's own profile page, ensuring familiarity and consistency across the platform. However, comments are not displayed, maintaining privacy and focusing on essential user details and 	reviews if available. The presence of navigation buttons facilitates exploration, enabling users to effortlessly transition between profiles or return to their own profile. This functionality enhances user experience by providing a streamlined interface for 	discovering and interacting with other users, promoting engagement within the platform community.
+	* When viewing another user's profile, the layout mirrors the structure of the user's own profile page, ensuring familiarity and consistency across the platform. However, comments are not displayed, maintaining privacy and focusing on essential user details and reviews if available. The presence of navigation buttons facilitates exploration, enabling users to effortlessly transition between profiles or return to their own profile. Only profiles approved by the admin are public: other profiles show a "page not found" to everyone except their owner and staff, and a review author's name only links to their profile once it is public.
  	* When accessing another user's profile without being authenticated, the "My profile" button is hidden. This prevents unauthorised users from attempting to access their own profile from someone else's profile page. It helps maintain security and ensures that 	users can only interact with their own profile when authenticated.
 
 ![Profile of another user when authenticated](documentation/userprofileauth.png)
@@ -421,7 +432,7 @@ These epics collectively represent the core functionalities and user experiences
 	* The review detail page offers a comprehensive view of a specific review, providing key details such as the author's name, the date of submission, the latest edit date if applicable, the given rating and the review description. Users can also see the total 	number of comments and likes associated with the review. Additionally, authenticated users have the option to like the review themselves. The page displays all approved comments along with their respective authors, allowing for in-depth discussions within the 	community about the review and the related experiences. This detailed information fosters engagement and facilitates meaningful interactions among users, enriching the overall user experience on the platform.
 	* For authenticated users, the heart icon on this page serves as an interactive feature, enhancing user engagement and feedback. When hovered over, the heart pulsates, drawing attention to its functionality. Users have the ability to add a like to the review by 	clicking the heart icon, and if they have already liked the review, they can remove their like with a simple click. The colour of the heart icon indicates the user's like status: red if the review is liked and outlined if it is not. This intuitive design 		provides immediate visual feedback to users, allowing them to easily track their interactions with reviews. Additionally, the restriction of only allowing one like per review ensures fairness and prevents any potential misuse or spamming of likes, maintaining 	the integrity of the like system. For non-authenticated users, the heart icon serves as a visual indicator of the review's popularity, appearing as read-only. It displays an outline if there are no likes and turns red when there is at least one like, offering 	immediate feedback on the review's reception even without interaction.
 	* On the review detail page, users who are authors of reviews or comments have the privilege to manage their own content. This includes the ability to delete any reviews or comments they have made. The edit and delete buttons on this page function similarly to 	those on the user's profile page, providing a consistent and intuitive experience across the platform. This feature empowers users to maintain control over their contributions to the community discussion, ensuring they can manage and update their content as 	needed.
- 	* Authenticated users can contribute their comments in the comments section of the review detail page. These comments undergo an approval process before being displayed, ensuring that only relevant and appropriate contributions are visible to the community. 	This approach helps maintain the quality and integrity of the discussions by preventing spam or inappropriate content from being immediately visible.
+ 	* Authenticated users can contribute their comments in the comments section of the review detail page once the review has been approved. Comments appear immediately; a red "Clear" button next to "Submit" empties the comment box. Staff can hide inappropriate comments from the admin panel. Logged-out visitors who try to post a comment are sent to the login page.
 
 ![Review details page](documentation/reviewdetailspage.png)
 
@@ -461,24 +472,28 @@ In future updates, expect to see additional features enhancing user interaction 
 - [CSS :root variables](https://www.w3schools.com/css/css3_variables.asp) used for reusable styles throughout the site.
 - [CSS Flexbox](https://www.w3schools.com/css/css3_flexbox.asp) used for an enhanced responsive layout.
 - [CSS Grid](https://www.w3schools.com/css/css_grid.asp) used for an enhanced responsive layout.
-- [JavaScript](https://www.javascript.com) used for user interaction on the site - to position the Django messages and remove them from the DOM after some time, to display the overlay on the home page after 3 seconds, for the hover effect on the buttons, for the pagination, to disable the password change submit button from being continuously clicked causing a malfunction and to display the previously uploaded image when editing a profile.
+- [JavaScript](https://www.javascript.com) used for user interaction on the site - to position the Django messages and remove them once they have faded out, for the hover effect on the buttons, and to disable form submit buttons after the first click so forms cannot be sent twice.
 - [Python](https://www.python.org) used as the back-end programming language.
 - [Git](https://git-scm.com) used for version control. (`git add`, `git commit`, `git push`)
 - [GitHub](https://github.com) used for secure online code storage.
-- [GitHub Pages](https://pages.github.com) used for hosting the deployed front-end site.
-- [Gitpod](https://gitpod.io) used as a cloud-based IDE for development.
+- [Gitpod](https://gitpod.io) used as a cloud-based IDE for initial development.
+- [VS Code](https://code.visualstudio.com) used as the IDE for later development.
 - [Bootstrap](https://getbootstrap.com) used as the front-end CSS framework for modern responsiveness and pre-built components.
-- [Django](https://www.djangoproject.com) used as the Python framework for the site.
+- [Django](https://www.djangoproject.com) (5.2 LTS) used as the Python framework for the site.
+- [django-allauth](https://allauth.org) used for user registration, login and password reset.
+- [django-summernote](https://github.com/summernote/django-summernote) used as the text editor in the admin panel.
 - [PostgreSQL](https://www.postgresql.org) used as the relational database management.
-- [Supabase](https://supabase.com/) used as the Postgres database.
+- [Neon](https://neon.tech/) used as the hosted Postgres database.
 - [Heroku](https://www.heroku.com) used for hosting the deployed back-end site.
-- [Cloudinary](https://cloudinary.com) used for online static file storage.
-- [Gmail](https://www.google.com/gmail/about/) used to create an email address to send password reset emails from.
-- [Font Awesome](https://fontawesome.com/) used for icons.
+- [Cloudinary](https://cloudinary.com) used to store user-uploaded profile pictures.
+- [WhiteNoise](https://whitenoise.readthedocs.io) used to serve static files (CSS, JavaScript, images) on Heroku, compressed and with long-term browser caching.
+- [Gmail](https://www.google.com/gmail/about/) used to create an email address to send password reset emails from (via SMTP).
+- [Font Awesome Free](https://fontawesome.com/) used for icons (embedded as inline SVGs).
 - [Coolors](https://coolors.co/) used to display colour palette used on the website.
 - [Looka](https://looka.com/) used to create brand logo.
 - [Google Fonts](https://fonts.google.com/) used to import "Montserrat" and "Noto Sans" fonts.
 - [Google Maps](https://www.google.co.uk/maps) used to display business location to the contact page.
+- [Pylint](https://pylint.readthedocs.io) with [pylint-django](https://github.com/pylint-dev/pylint-django) used to lint the Python code.
 - [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) used for performance review on each page.
 - [Caniuse](https://caniuse.com/) used to check compatibility of code syntax with other browsers.
 - [Amiresposive](https://amiresponsive.co.uk/) used to display website on the most common devices.
@@ -528,7 +543,7 @@ The following are the models created for L2D:
 | | age | PositiveIntegerField | |
 | | occupation | CharField | |
 | | about_me | TextField | |
-| | approved | BooleanField | |
+| | approved | BooleanField | Set by the admin; unlocks appointments and makes the profile public |
 | | created_on | DateTimeField | |
 
 * Table: **Review**
@@ -538,7 +553,7 @@ The following are the models created for L2D:
 | **FK** | author | OneToOneField | FK to **UserProfile** model |
 | | rating | IntegerField | |
 | | content | TextField | |
-| | approved | BooleanField | |
+| | approved | BooleanField | Set by the admin; reset to pending when the review is edited |
 | | created_on | DateTimeField | |
 | | updated_on | DateTimeField | |
 | | likes | ManyToManyField | M2M to **UserProfile** model |
@@ -550,10 +565,12 @@ The following are the models created for L2D:
 | **FK** | review | ForeignKey | FK to **Review** model |
 | **FK** | author | ForeignKey | FK to **UserProfile** model |
 | | content | TextField | |
-| | approved | BooleanField | |
+| | approved | BooleanField | Defaults to published; untick in the admin to hide a comment |
 | | replied_on | DateTimeField | |
 | | updated_on | DateTimeField | |
 
+
+Database indexes cover the columns the site filters and sorts on most (approval status and review dates).
 
 ## Agile Development Process
 
@@ -624,7 +641,7 @@ To obtain your own Cloudinary API key, create an account and log in.
 - On your Cloudinary Dashboard, you can copy your **API Environment Variable**.
 - Be sure to remove the `CLOUDINARY_URL=` as part of the API **value**; this is the **key**.
 
-### Gmail API
+### Gmail (SMTP)
 
 This project uses [Gmail](https://mail.google.com) to handle sending password reset emails to users.
 
@@ -660,11 +677,14 @@ Deployment steps are as follows, after account setup:
 | --- | --- |
 | `CLOUDINARY_URL` | user's own value |
 | `DATABASE_URL` | user's own value |
-| `DISABLE_COLLECTSTATIC` | 1 (*this is temporary, and can be removed for the final deployment*) |
 | `SECRET_KEY` | user's own value |
 | `HOST` | user's own value |
 | `EMAIL_HOST_PASS` | user's own value |
 | `EMAIL_HOST_USER` | user's own value |
+
+The app checks these on start-up and refuses to run on Heroku if any of them is missing, naming the missing variable in the logs (`heroku logs --tail`).
+
+> **Do not set `DISABLE_COLLECTSTATIC`.** Heroku must run `collectstatic` during every build: the site serves static files under content-hashed names (for example `styles.60d00a2451b6.css`), and pages fail to load if that step is skipped.
 
 Heroku needs two additional files in order to deploy properly.
 
@@ -675,14 +695,17 @@ You can install this project's **requirements** (where applicable) using:
 
 - `pip3 install -r requirements.txt`
 
-If you have your own packages that have been installed, then the requirements file needs updated using:
+If you add a package that the site needs in production, add it to *requirements.txt* with its exact version (for example `django-allauth==65.23.0`). Avoid `pip3 freeze > requirements.txt`, which would also add development-only tools such as linters.
 
-- `pip3 freeze --local > requirements.txt`
+This project's **Procfile** contains two lines:
 
-The **Procfile** can be created with the following command:
+```
+release: python manage.py migrate --noinput
+web: gunicorn l2d.wsgi
+```
 
-- `echo web: gunicorn app_name.wsgi > Procfile`
-- *replace **app_name** with the name of your primary Django app name; the folder where settings.py is located*
+- `web` starts the site with the Gunicorn production server (*replace **l2d** with the name of your primary Django app: the folder where settings.py is located*).
+- `release` runs any new database migrations automatically on every deploy, before the new version goes live. Without it, a deploy that includes migrations would leave the database out of date until someone ran `heroku run python manage.py migrate` by hand.
 
 For Heroku deployment, follow these steps to connect your own GitHub repository to the newly created app:
 
@@ -697,18 +720,22 @@ Or:
 - After performing the standard Git `add`, `commit`, and `push` to GitHub, you can now type:
 	- `git push heroku main`
 
-The project should now be connected and deployed to Heroku!
+Pushing to GitHub alone does not deploy the site unless Automatic Deployment is enabled; this project is deployed with `git push heroku main`.
+
+The project should now be connected and deployed to Heroku! On the first deploy (and whenever the domain changes), check that `HOST` is set correctly: a database migration copies it into Django's "Sites" record, which the sitemap uses for its links and allauth uses in email subjects.
 
 ### Local Deployment
 
 This project can be cloned or forked in order to make a local copy on your own system.
 
-For either method, you will need to install any applicable packages found within the *requirements.txt* file.
+For either method, create a virtual environment with Python 3.12 (the version in *.python-version*) and install the packages found within the *requirements.txt* file:
 
-- `pip3 install -r requirements.txt`.
+- `python -m venv venv`
+- Activate it: `source venv/bin/activate` (Mac/Linux), `venv\Scripts\activate` (Windows Command Prompt) or `source venv/Scripts/activate` (Git Bash)
+- `pip install -r requirements.txt`
 
-You will need to create a new file called `env.py` at the root-level,
-and include the same environment variables listed above from the Heroku deployment steps.
+You will need to create a new file called `env.py` at the root-level (a template is provided in *env.example.py*).
+It is listed in *.gitignore* so your secrets are never committed.
 
 Sample `env.py` file:
 
@@ -716,11 +743,13 @@ Sample `env.py` file:
 import os
 
 os.environ.setdefault("SECRET_KEY", "your-secret-key-here")
-os.environ.setdefault("DATABASE_URL", "your-database-url-here")
 os.environ.setdefault("CLOUDINARY_URL", "cloudinary://api_key:api_secret@cloud_name")
 os.environ.setdefault("EMAIL_HOST_USER", "your-email@gmail.com")
 os.environ.setdefault("EMAIL_HOST_PASS", "your-gmail-app-password-here")
-os.environ.setdefault("HOST", "your-deployed-host.herokuapp.com")
+
+# Optional: leave DATABASE_URL unset to use a local SQLite database
+# (db.sqlite3). Set it to a Postgres URL to use that database instead.
+# os.environ.setdefault("DATABASE_URL", "postgres://user:password@host:5432/dbname")
 
 # local development only — do not set these in production
 os.environ.setdefault("DEBUG", "True")
@@ -731,24 +760,26 @@ os.environ.setdefault("DEVELOPMENT", "1")  # switches email backend to console o
 | Variable | Required | Notes |
 |---|---|---|
 | `SECRET_KEY` | Always | Django secret key — keep this private |
-| `DATABASE_URL` | Always | PostgreSQL connection string (e.g. from ElephantSQL or Heroku Postgres) |
+| `DATABASE_URL` | Production | PostgreSQL connection string (e.g. from [Neon](https://neon.tech/)). Optional locally: when it is not set, a local SQLite database (`db.sqlite3`) is used |
 | `CLOUDINARY_URL` | Always | Found on your Cloudinary dashboard |
 | `EMAIL_HOST_USER` | Always | Gmail address used for sending emails |
 | `EMAIL_HOST_PASS` | Always | Gmail **App Password** (not your account password) — generate under Google Account → Security |
-| `HOST` | Production | Your deployed domain (e.g. `myapp.herokuapp.com`) — omit locally |
+| `HOST` | Production | Your deployed domain (e.g. `myapp.herokuapp.com`). Not needed locally, where `LOCALHOST` allows `127.0.0.1` / `localhost` |
 | `DEBUG` | Local only | Set to `"True"` locally; never set in production |
 | `LOCALHOST` | Local only | Enables `127.0.0.1` / `localhost` in `ALLOWED_HOSTS` |
 | `DEVELOPMENT` | Local only | Uses console email backend instead of Gmail SMTP |
 
 Once the project is cloned or forked, in order to run it locally, you'll need to follow these steps:
 
-- Start the Django app: `python3 manage.py runserver`
-- Stop the app once it's loaded: `CTRL+C` or `⌘+C` (Mac)
-- Make any necessary migrations: `python3 manage.py makemigrations`
-- Migrate the data to the database: `python3 manage.py migrate`
-- Create a superuser: `python3 manage.py createsuperuser`
-- Load fixtures (if applicable): `python3 manage.py loaddata file-name.json` (repeat for each file)
-- Everything should be ready now, so run the Django app again: `python3 manage.py runserver`
+- Set up the database: `python manage.py migrate`
+- Create a superuser: `python manage.py createsuperuser`
+- Start the Django app: `python manage.py runserver` and open http://127.0.0.1:8000
+- Stop the app: `CTRL+C` or `⌘+C` (Mac)
+- Run the automated tests: `python manage.py test`
+
+The migrations are already included in the repository, so `makemigrations` is only needed if you change a model.
+
+With `DEBUG` set to `"True"` (as in the sample above), static files are served straight from the *static* folder. If you run locally with `DEBUG` set to `"False"`, run `python manage.py collectstatic --noinput` first, and again after changing any CSS, JavaScript or images, otherwise pages will fail to load.
 
 #### Cloning
 
@@ -784,11 +815,11 @@ You can fork this repository by using the following steps:
 In the local environment:
 * The SECRET_KEY variable is retrieved from the env.py file.
 * The DEBUG variable is retrieved from the env.py file and its status is set to "True".
-* The HOST variable provides the url of the local host and is retrieved from the env.py file. This is then added to the allowed hosts.
-* The local host url is also provided for the CSRF trusted origins.
+* The LOCALHOST variable adds `127.0.0.1` and `localhost` to the allowed hosts. HOST is not needed locally.
 * The DEVELOPMENT variable is retrieved from the env.py file and its status is set to "True". This sets up the backend and sends the password reset token to the terminal. The email credentials, for the email that sends the token to the terminal, are retrieved from the env.py file.
 * The CLOUDINARY_URL variable is retrieved from env.py file.
-* The DATABASE_URL variable is retrieved from env.py file.
+* The DATABASE_URL variable is optional: if env.py doesn't set it, a local SQLite database is used.
+* HTTPS is not enforced, so the development server works over plain `http://`.
 
 On Heroku:
 * The SECRET_KEY variable is retrieved from the Config Vars in the settings.
@@ -798,6 +829,8 @@ On Heroku:
 * The DEVELOPMENT variable is absent therefore its status defaults to "False". There is a condition set up in this case so that the backend is setup to send the password reset token to the user's email (entered in the password reset request form). The email credentials, for the email that mails the user, are retrieved from the Config Vars in the settings.
 * The CLOUDINARY_URL variable is retrieved from the Config Vars in the settings.
 * The DATABASE_URL variable is retrieved from the Config Vars in the settings.
+* All required variables are checked on start-up; if any is missing the app stops with an error naming it.
+* HTTPS is enforced: plain `http://` requests are redirected, cookies are only sent over HTTPS, and browsers are told to use HTTPS for the site for a year (HSTS).
 
 
 ## Credits
@@ -810,7 +843,8 @@ On Heroku:
 | [YouTube - Dennis Ivy](https://www.youtube.com/@DennisIvy) | Authentication pages | User Registration and Login Authentication, Django Signals, Password Reset Email |
 | [YouTube - Programming with Mosh](https://www.youtube.com/@programmingwithmosh) | Entire site | Responsive design, CSS grid, image optimisation |
 | [YouTube - Online Tutorials](https://www.youtube.com/@OnlineTutorialsYT) | Buttons, cards | Creative CSS special effects |
-| [WhiteNoise](http://whitenoise.evans.io) | entire site | hosting static files on Heroku temporarily |
+| [WhiteNoise](https://whitenoise.readthedocs.io) | entire site | serving compressed, long-term cached static files on Heroku |
+| [Font Awesome Free](https://fontawesome.com) | icons | SVG icons, used under the CC BY 4.0 licence |
 
 ### Acknowledgements
 
