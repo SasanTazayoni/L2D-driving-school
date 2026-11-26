@@ -14,7 +14,7 @@
                 <h1>Account Login</h1>
                 <img src="{% static 'images/car.png' %}" class="form-image" alt="An image of a car">
             </header>
-            <form action="{% url 'account_login' %}" method="POST" class="d-flex justify-content-center align-items-center flex-column form">
+            <form action="{% url 'account_login' %}" method="POST" data-disable-on-submit class="d-flex justify-content-center align-items-center flex-column form">
                 {% csrf_token %}
                 <div class="form-field">
                     <label for="id_login">Username:</label>

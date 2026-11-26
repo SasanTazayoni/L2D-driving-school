@@ -371,3 +371,54 @@ class ToastCloseButtonTest(TestCase):
             'aria-label="Close message"></button>',
             html=True,
         )
+
+
+
+class SiteWideFrontEndTest(TestCase):
+    """
+    Site-wide front-end behaviour: navigation marks only the current page,
+    toasts behave by severity, the home hero is visible straight away,
+    search survives pagination, and forms guard against double submits.
+    """
+    def test_only_the_current_nav_link_is_marked_current(self):
+        html = self.client.get(reverse('home')).content.decode()
+        self.assertEqual(html.count('aria-current="page"'), 1)
+        self.assertRegex(
+            html, r'class="nav-link active" aria-current="page"\s+href="/"')
+
+    def test_error_toast_stays_and_success_toast_fades(self):
+        user = User.objects.create_user('toast', 't@example.com', 'Pass-word-123')
+        # Error: unapproved user visiting appointments
+        self.client.force_login(user)
+        html = self.client.get(reverse('appointments'), follow=True).content.decode()
+        self.assertRegex(html, r'class="alert [^"]*alert-danger"\s+role="alert"')
+        self.assertNotRegex(html, r'alert-danger[^"]*auto-dismiss')
+        self.client.logout()
+        # Success: logging in
+        html = self.client.post(
+            reverse('account_login'),
+            {'login': 'toast', 'password': 'Pass-word-123'}, follow=True,
+        ).content.decode()
+        self.assertRegex(
+            html, r'class="alert [^"]*alert-success auto-dismiss"\s+role="status"')
+
+    def test_home_hero_text_is_visible_immediately(self):
+        html = self.client.get(reverse('home')).content.decode()
+        self.assertIn('class="overlay active', html)
+        self.assertNotIn('overlay.js', html)
+
+    def test_pagination_links_keep_the_search(self):
+        for i in range(14):
+            User.objects.create_user(
+                f'sam{i}', f'sam{i}@example.com', 'password', first_name=f'Sam{i}')
+        UserProfile.objects.update(approved=True)
+        html = self.client.get(
+            reverse('user_profiles'), {'search_query': 'Sam'}).content.decode()
+        self.assertIn('href="?search_query=Sam&amp;page=2"', html)
+        self.assertNotIn('pagination.js', html)
+
+    def test_auth_forms_guard_against_double_submit(self):
+        for name in ('account_login', 'account_signup', 'account_reset_password'):
+            html = self.client.get(reverse(name)).content.decode()
+            self.assertIn('data-disable-on-submit', html, name)
+            self.assertIn('js/disableSubmitButton.js', html, name)

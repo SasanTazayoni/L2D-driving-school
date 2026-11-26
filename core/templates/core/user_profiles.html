@@ -6,10 +6,6 @@
 
 {% block meta_description %}Browse the L2D Driving School student community. View learner profiles and see who else is on their journey to becoming a confident driver.{% endblock meta_description %}
 
-{% block head_scripts %}
-<script src="{% static 'js/pagination.js' %}" defer></script>
-{% endblock head_scripts %}
-
 {% block content %}
 
 <section class="block--grey full-page-block">
@@ -59,13 +55,12 @@
                 {% for page in paginator.page_range %}
                     {% if page == user_profiles.number %}
                         <li class="d-inline-block">
-                            <a href="?page={{ page }}" class="blue-button pagination-button active d-flex align-items-center justify-content-center" aria-current="page"
-                                data-page="{{ page }}">{{ page }}
+                            <a href="?{% if search_query %}search_query={{ search_query|urlencode }}&amp;{% endif %}page={{ page }}" class="blue-button pagination-button active d-flex align-items-center justify-content-center" aria-current="page">{{ page }}
                             </a>
                         </li>
                     {% else %}
                         <li class="d-inline-block">
-                            <a href="?page={{ page }}" class="blue-button pagination-button d-flex align-items-center justify-content-center" data-page="{{ page }}">
+                            <a href="?{% if search_query %}search_query={{ search_query|urlencode }}&amp;{% endif %}page={{ page }}" class="blue-button pagination-button d-flex align-items-center justify-content-center">
                                 {{ page }}
                             </a>
                         </li>

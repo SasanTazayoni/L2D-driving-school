@@ -22,13 +22,10 @@ html {
 
 body {
     overflow-x: hidden;
+    font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 }
 
 /* Typography */
-
-body {
-    font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-}
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', Arial, Helvetica, sans-serif;
@@ -678,8 +675,6 @@ a.red-button,
 /* Messages */
 
 [data-alert] {
-    animation: fadeOut 5s linear forwards;
-    animation-delay: 2s;
     position: absolute;
     left: 0;
     right: 0;
@@ -699,6 +694,33 @@ a.red-button,
 
 .alert.fade {
     transition: opacity 0.15s linear;
+}
+
+/* Success/info toasts fade out by themselves after 2s (over 5s). Hovering
+   or focusing one pauses it; errors and warnings never auto-dismiss. */
+.alert.auto-dismiss {
+    animation: fadeOut 5s linear 2s forwards;
+}
+
+.alert.auto-dismiss:hover,
+.alert.auto-dismiss:focus-within {
+    animation-play-state: paused;
+}
+
+/* Respect the system "reduce motion" setting */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .blue-button > span,
+    .red-button > span {
+        display: none;
+    }
+
+    .like-icon-container:hover .animate {
+        animation: none;
+    }
 }
 
 @keyframes fadeOut {

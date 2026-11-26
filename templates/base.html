@@ -50,6 +50,7 @@
     {% block head_scripts %}{% endblock head_scripts %}
     <script src="{% static 'js/buttons.js' %}" defer></script>
     <script src="{% static 'js/alertPositioning.js' %}" defer></script>
+    <script src="{% static 'js/disableSubmitButton.js' %}" defer></script>
 </head>
 
 <body class="d-flex flex-column h-100 main-bg" {% block body_data %}{% endblock %}>
@@ -72,33 +73,34 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarText">
+                {% with current=request.resolver_match.url_name %}
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 mx-2">
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'home' %}active{% endif %}" aria-current="page"
+                        <a class="nav-link{% if current == 'home' %} active{% endif %}"{% if current == 'home' %} aria-current="page"{% endif %}
                             href="{% url 'home' %}"><span>Home</span></a>
                     </li>
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'reviews' %}active{% endif %}" aria-current="page"
+                        <a class="nav-link{% if current == 'reviews' %} active{% endif %}"{% if current == 'reviews' %} aria-current="page"{% endif %}
                             href="{% url 'reviews' %}"><span>Reviews</span></a>
                     </li>
                     {% if request.user.is_authenticated and request.user.profile.approved %}
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'appointments' %}active{% endif %}"
-                            aria-current="page" href="{% url 'appointments' %}"><span>Appointments</span></a>
+                        <a class="nav-link{% if current == 'appointments' %} active{% endif %}"{% if current == 'appointments' %} aria-current="page"{% endif %}
+                            href="{% url 'appointments' %}"><span>Appointments</span></a>
                     </li>
                     {% endif %}
                     {% if request.user.is_authenticated %}
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'profile_page' %}active{% endif %}" aria-current="page"
+                        <a class="nav-link{% if current == 'profile_page' %} active{% endif %}"{% if current == 'profile_page' %} aria-current="page"{% endif %}
                             href="{% url 'profile_page' %}"><span>Profile</span></a>
                     </li>
                     {% endif %}
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'user_profiles' %}active{% endif %}"
-                            aria-current="page" href="{% url 'user_profiles' %}"><span>All Users</span></a>
+                        <a class="nav-link{% if current == 'user_profiles' %} active{% endif %}"{% if current == 'user_profiles' %} aria-current="page"{% endif %}
+                            href="{% url 'user_profiles' %}"><span>All Users</span></a>
                     </li>
                     <li class="nav-item mx-2">
-                        <a class="nav-link {% if request.resolver_match and request.resolver_match.url_name == 'contact' %}active{% endif %}" aria-current="page"
+                        <a class="nav-link{% if current == 'contact' %} active{% endif %}"{% if current == 'contact' %} aria-current="page"{% endif %}
                             href="{% url 'contact' %}"><span>Contact</span></a>
                     </li>
                     {% if user.is_authenticated %}
@@ -110,12 +112,13 @@
                     </li>
                     {% else %}
                     <li class="nav-item mx-2">
-                        <a class="btn nav-link auth-link" aria-current="page" href="{% url 'account_login' %}">
+                        <a class="btn nav-link auth-link" href="{% url 'account_login' %}">
                             <span>Log in/Sign up</span>
                         </a>
                     </li>
                     {% endif %}
                 </ul>
+                {% endwith %}
                 <div class="px-1">
                     {% if user.is_authenticated %}
                     <button id="logoutBtn" class="btn auth-button" data-bs-toggle="modal"
@@ -123,7 +126,7 @@
                         Log out
                     </button>
                     {% else %}
-                    <a class="btn auth-button" aria-current="page" href="{% url 'account_login' %}">
+                    <a class="btn auth-button" href="{% url 'account_login' %}">
                         Log in/Sign up
                     </a>
                     {% endif %}
@@ -134,8 +137,10 @@
     <!-- Displaying messages -->
     <div data-alert>
         {% for message in messages %}
-        <div class="alert alert-dismissible fade show text-center {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% elif message.tags == 'warning' %}alert-warning{% endif %}"
-            role="alert">
+        {% comment %}Success/info messages fade out by themselves (hover or focus pauses them);
+        errors and warnings (level 30+) stay until closed with the x.{% endcomment %}
+        <div class="alert alert-dismissible fade show text-center {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% elif message.tags == 'warning' %}alert-warning{% endif %}{% if message.level < 30 %} auto-dismiss{% endif %}"
+            role="{% if message.level >= 30 %}alert{% else %}status{% endif %}">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close message"></button>
         </div>

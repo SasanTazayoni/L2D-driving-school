@@ -14,7 +14,7 @@
         <h1>Register New User</h1>
         <img src="{% static 'images/car.png' %}" class="form-image" alt="An image of a car">
       </header>
-      <form action="{% url 'account_signup' %}" method="POST"
+      <form action="{% url 'account_signup' %}" method="POST" data-disable-on-submit
         class="d-flex justify-content-center align-items-center flex-column form">
         {% csrf_token %}
         <div class="form-field">
