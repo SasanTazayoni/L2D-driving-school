@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 import dj_database_url
 import cloudinary
 from django.core.exceptions import ImproperlyConfigured
@@ -214,6 +215,24 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles_root')
+
+# collectstatic gives every CSS/JS/image file a content-hashed name
+# (e.g. styles.3f2a1b.css) and gzip/brotli copies. WhiteNoise can then let
+# browsers cache them for a year, and a deploy changes the names so nobody
+# gets stale files. The test runner never runs collectstatic (so there's no
+# manifest of hashed names), so tests use plain storage instead.
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if "test" in sys.argv
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
