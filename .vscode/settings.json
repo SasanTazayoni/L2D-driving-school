@@ -1,4 +1,10 @@
 {
+   "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+   "pylint.importStrategy": "fromEnvironment",
+   "pylint.args": [
+      "--load-plugins=pylint_django",
+      "--django-settings-module=l2d.settings"
+   ],
    "python.linting.pylintEnabled": false,
    "python.linting.enabled": true,
    "python.linting.pycodestyleEnabled": true,
