@@ -39,6 +39,18 @@ if host:
 if os.environ.get("LOCALHOST"):
     ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
 
+# HTTPS hardening, only on Heroku (which sets DYNO on every running dyno),
+# so local development and the test suite keep working over plain HTTP.
+if "DYNO" in os.environ:
+    # Heroku terminates SSL at its router and forwards the original scheme
+    # in this header; without it SECURE_SSL_REDIRECT loops forever.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Start with 1 hour; raise to 31536000 (1 year) once HTTPS is confirmed.
+    SECURE_HSTS_SECONDS = 3600
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
