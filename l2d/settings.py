@@ -143,7 +143,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             TEMPLATES_DIR,
-            os.path.join(BASE_DIR, 'templates', 'allauth'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -214,7 +213,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles_root')
 
 # collectstatic gives every CSS/JS/image file a content-hashed name
 # (e.g. styles.3f2a1b.css) and gzip/brotli copies. WhiteNoise can then let

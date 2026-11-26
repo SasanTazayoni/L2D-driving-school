@@ -8,6 +8,14 @@ def handler404(request, exception):  # pylint: disable=unused-argument
     return render(request, '404.html', status=404)
 
 
+def robots_txt(request):
+    """
+    robots.txt, with the sitemap's full address built from the request so it
+    always matches the domain the site is actually served on.
+    """
+    return render(request, 'robots.txt', content_type='text/plain')
+
+
 def summernote_upload_disabled(request):
     """
     Replaces django-summernote's file upload endpoint, which by default

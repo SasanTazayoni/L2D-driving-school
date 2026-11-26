@@ -91,11 +91,9 @@ class TermsAndConditionsViewTest(TestCase):
     Test to see if terms and conditions page renders correctly.
     """
     def test_terms_view(self):
-        from core.views import terms_and_conditions
-        factory = RequestFactory()
-        request = factory.get(reverse('terms'))
-        response = terms_and_conditions(request)
+        response = self.client.get(reverse('terms'))
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/terms_and_conditions.html')
 
 
 class CookiePolicyViewTest(TestCase):
@@ -103,11 +101,9 @@ class CookiePolicyViewTest(TestCase):
     Test to see if cookie policy page renders correctly.
     """
     def test_cookie_policy_view(self):
-        from core.views import cookie_policy
-        factory = RequestFactory()
-        request = factory.get(reverse('cookie_policy'))
-        response = cookie_policy(request)
+        response = self.client.get(reverse('cookie_policy'))
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/cookie_policy.html')
 
 
 class PrivacyPolicyViewTest(TestCase):
@@ -115,20 +111,15 @@ class PrivacyPolicyViewTest(TestCase):
     Test to see if privacy policy page renders correctly.
     """
     def test_privacy_policy_view(self):
-        from core.views import privacy_policy
-        factory = RequestFactory()
-        request = factory.get(reverse('privacy_policy'))
-        response = privacy_policy(request)
+        response = self.client.get(reverse('privacy_policy'))
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'core/privacy_policy.html')
 
-    def test_privacy_policy_response_time(self):
+    def test_privacy_policy_states_one_week_reply_time(self):
         """
-        Privacy policy response should state one week turnaround.
+        The privacy policy promises a reply to data requests within a week.
         """
-        from core.views import privacy_policy
-        factory = RequestFactory()
-        request = factory.get(reverse('privacy_policy'))
-        response = privacy_policy(request)
+        response = self.client.get(reverse('privacy_policy'))
         self.assertContains(response, 'one week')
 
 
@@ -422,3 +413,44 @@ class SiteWideFrontEndTest(TestCase):
             html = self.client.get(reverse(name)).content.decode()
             self.assertIn('data-disable-on-submit', html, name)
             self.assertIn('js/disableSubmitButton.js', html, name)
+
+
+
+class RobotsAndSitemapTest(TestCase):
+    """
+    robots.txt points crawlers at the real sitemap and blocks private areas;
+    the sitemap lists public pages, approved reviews and public profiles only,
+    on the domain stored in the Sites record.
+    """
+    def test_robots_txt(self):
+        response = self.client.get('/robots.txt')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        body = response.content.decode()
+        self.assertIn('Sitemap: http://testserver/sitemap.xml', body)
+        for private in ('/admin/', '/accounts/', '/profile/', '/appointments/'):
+            self.assertIn(f'Disallow: {private}', body)
+        self.assertNotIn('yourdomain.com', body)
+
+    def test_sitemap_lists_public_content_on_the_site_domain(self):
+        from django.contrib.sites.models import Site
+        from reviews.models import Review
+        Site.objects.filter(id=1).update(domain='l2d.example')
+        Site.objects.clear_cache()  # Django caches the current Site in memory
+        public = User.objects.create_user('pub', 'p@example.com', 'pw', first_name='Pub')
+        UserProfile.objects.filter(user=public).update(approved=True)
+        hidden = User.objects.create_user('hid', 'h@example.com', 'pw', first_name='Hid')
+        shown = Review.objects.create(
+            author=public.profile, rating=5, content='x', approved=True)
+        pending = Review.objects.create(
+            author=hidden.profile, rating=1, content='y', approved=False)
+
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('<loc>http://l2d.example/</loc>', body)
+        self.assertIn(reverse('review_detail', args=[shown.id]), body)
+        self.assertNotIn(reverse('review_detail', args=[pending.id]), body)
+        self.assertIn(reverse('profile_detail', args=[public.id]), body)
+        self.assertNotIn(reverse('profile_detail', args=[hidden.id]), body)
+        self.assertNotIn('example.com/', body)

@@ -20,7 +20,7 @@ from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from core import views as core_views
 from l2d.sitemaps import StaticViewSitemap, ReviewSitemap, ProfileSitemap
-from l2d.views import summernote_upload_disabled
+from l2d.views import robots_txt, summernote_upload_disabled
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -50,5 +50,6 @@ urlpatterns = [
     ),
     path("summernote/", include("django_summernote.urls")),
     path("user-profiles/", include("core.urls")),
+    path("robots.txt", robots_txt, name="robots_txt"),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 ]

@@ -5,4 +5,4 @@ Disallow: /summernote/
 Disallow: /appointments/
 Disallow: /profile/
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: {{ request.scheme }}://{{ request.get_host }}{% url 'django.contrib.sitemaps.views.sitemap' %}
