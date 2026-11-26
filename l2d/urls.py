@@ -20,6 +20,7 @@ from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from core import views as core_views
 from l2d.sitemaps import StaticViewSitemap, ReviewSitemap, ProfileSitemap
+from l2d.views import summernote_upload_disabled
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -35,12 +36,19 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("appointments/", core_views.appointments, name="appointments"),
     path("contact/", core_views.contact, name="contact"),
-    path("profile/", include("profiles.urls"), name="profile"),
-    path("reviews/", include("reviews.urls"), name="reviews"),
+    path("profile/", include("profiles.urls")),
+    path("reviews/", include("reviews.urls")),
     path("terms/", core_views.terms_and_conditions, name="terms"),
     path("cookies/", core_views.cookie_policy, name="cookie_policy"),
     path("privacy/", core_views.privacy_policy, name="privacy_policy"),
+    # Must come before the summernote include so it overrides the upload
+    # endpoint; the editor widget still finds a URL to point at.
+    path(
+        "summernote/upload_attachment/",
+        summernote_upload_disabled,
+        name="django_summernote-upload_attachment",
+    ),
     path("summernote/", include("django_summernote.urls")),
-    path("user-profiles/", include("core.urls"), name="user-profiles"),
+    path("user-profiles/", include("core.urls")),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
 ]

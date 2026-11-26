@@ -8,7 +8,7 @@ from .models import UserProfile
 from .forms import UserProfileForm
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def profile_page(request):
     """
     Renders the profile page of the current logged in user.
@@ -41,7 +41,7 @@ def profile_page(request):
     )
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def edit_profile(request):
     """
     Renders the edit profile form and handles form submission.
@@ -85,7 +85,7 @@ def edit_profile(request):
     return render(request, template, context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def delete_profile(request):
     """
     Deletes the profile of the currently logged in user.

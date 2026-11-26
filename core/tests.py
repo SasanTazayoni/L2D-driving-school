@@ -255,3 +255,38 @@ class AboutMeEscapingTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse('profile_page'))
         self.assert_escaped(response)
+
+
+
+class SummernoteUploadDisabledTest(TestCase):
+    """
+    The summernote upload endpoint must refuse files from everyone, and the
+    admin editor (which links to that endpoint) must still render.
+    """
+    def setUp(self):
+        self.staff = User.objects.create_superuser(
+            'boss', 'boss@example.com', 'password'
+        )
+
+    def post_file(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        upload = SimpleUploadedFile('x.png', b'not really a png', 'image/png')
+        return self.client.post(
+            reverse('django_summernote-upload_attachment'), {'files': upload}
+        )
+
+    def test_anonymous_upload_refused(self):
+        from django_summernote.models import Attachment
+        self.assertEqual(self.post_file().status_code, 403)
+        self.assertFalse(Attachment.objects.exists())
+
+    def test_staff_upload_refused(self):
+        from django_summernote.models import Attachment
+        self.client.force_login(self.staff)
+        self.assertEqual(self.post_file().status_code, 403)
+        self.assertFalse(Attachment.objects.exists())
+
+    def test_admin_editor_still_renders(self):
+        self.client.force_login(self.staff)
+        response = self.client.get('/admin/reviews/review/add/')
+        self.assertEqual(response.status_code, 200)

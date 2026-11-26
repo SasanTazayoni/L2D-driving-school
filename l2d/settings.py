@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 import cloudinary
+from django.core.exceptions import ImproperlyConfigured
 if os.path.isfile('env.py'):
     import env
 
@@ -42,6 +43,18 @@ if os.environ.get("LOCALHOST"):
 # HTTPS hardening, only on Heroku (which sets DYNO on every running dyno),
 # so local development and the test suite keep working over plain HTTP.
 if "DYNO" in os.environ:
+    # Fail fast with a clear message if production config is incomplete,
+    # instead of serving 400s (no HOST) or erroring on first upload/email.
+    REQUIRED_ENV_VARS = [
+        "SECRET_KEY", "DATABASE_URL", "HOST",
+        "CLOUDINARY_URL", "EMAIL_HOST_USER", "EMAIL_HOST_PASS",
+    ]
+    missing = [name for name in REQUIRED_ENV_VARS if not os.environ.get(name)]
+    if missing:
+        raise ImproperlyConfigured(
+            "Missing required environment variables: " + ", ".join(missing)
+        )
+
     # Heroku terminates SSL at its router and forwards the original scheme
     # in this header; without it SECURE_SSL_REDIRECT loops forever.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -60,7 +73,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
-    'cloudinary_storage',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -86,6 +98,7 @@ else:
     DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
 
 ACCOUNT_SIGNUP_REDIRECT_URL = '/profile/edit/'
+LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = False
@@ -99,6 +112,14 @@ ACCOUNT_UNIQUE_EMAIL = True
 cloudinary.config(
     secure=True
 )
+
+# Summernote is only used as a text editor in the admin. Its upload
+# endpoint is blocked outright in l2d/urls.py; this setting is a second
+# layer in case that route is ever removed. ('disable_attachment' can't be
+# used: in django-summernote 0.8.20 it breaks every editor widget.)
+SUMMERNOTE_CONFIG = {
+    'attachment_require_authentication': True,
+}
 
 
 MIDDLEWARE = [
@@ -148,9 +169,15 @@ if 'DATABASE_URL' not in os.environ:
         }
     }
 else:
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-    }
+    try:
+        DATABASES = {
+            'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+        }
+    except (KeyError, ValueError) as error:
+        raise ImproperlyConfigured(
+            "DATABASE_URL is not a valid database URL "
+            "(expected e.g. postgres://user:pass@host:5432/dbname)"
+        ) from error
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

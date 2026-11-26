@@ -848,3 +848,36 @@ class ModerationAndPermissionTest(TestCase):
         response = self.client.post(reverse('like_review', args=[self.pending.id]))
         self.assertEqual(response.status_code, 404)
         self.assertFalse(self.pending.likes.exists())
+
+
+
+class AdminSearchTest(TestCase):
+    """
+    Searching reviews and comments in the admin must work (it used to
+    raise a 500 because 'author' is a relation, not a text field).
+    """
+    def setUp(self):
+        self.staff = User.objects.create_superuser(
+            'boss', 'boss@example.com', 'password'
+        )
+        author = User.objects.create_user(
+            'searchable', 'searchable@example.com', 'password',
+            first_name='Searchable'
+        )
+        review = Review.objects.create(
+            author=author.profile, rating=5, content='Great lessons'
+        )
+        Comment.objects.create(
+            review=review, author=author.profile, content='Agreed'
+        )
+        self.client.force_login(self.staff)
+
+    def test_review_search_by_author_name(self):
+        response = self.client.get('/admin/reviews/review/?q=Searchable')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['cl'].result_count, 1)
+
+    def test_comment_search_by_author_name(self):
+        response = self.client.get('/admin/reviews/comment/?q=Searchable')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['cl'].result_count, 1)

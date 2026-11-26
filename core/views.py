@@ -14,7 +14,7 @@ def home(request):
     return render(request, 'core/index.html')
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def appointments(request):
     """
     Renders the appointments page if the user is authenticated,

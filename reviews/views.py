@@ -113,7 +113,7 @@ def review_detail(request, review_id):
     return render(request, "reviews/review_detail.html", context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def edit_comment(request, review_id, comment_id):
     """
     Edit a comment authored by the current user on a review.
@@ -165,7 +165,7 @@ def edit_comment(request, review_id, comment_id):
     return render(request, 'reviews/review_detail.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def delete_comment(request, review_id, comment_id):
     """
     Delete a comment authored by the current user on a review.
@@ -189,7 +189,7 @@ def delete_comment(request, review_id, comment_id):
     return redirect(reverse('review_detail', args=[review_id]))
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def create_review(request):
     """
     Create a review authored by the current user.
@@ -219,7 +219,7 @@ def create_review(request):
     return render(request, "reviews/review_form.html", context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def update_review(request, review_id):
     """
     Update a review authored by the current user.
@@ -259,7 +259,7 @@ def update_review(request, review_id):
     return render(request, "reviews/review_form.html", context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def delete_review(request, review_id):
     """
     Delete a review authored by the current user.
@@ -283,7 +283,7 @@ def delete_review(request, review_id):
     return redirect('profile_page')
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 @require_POST
 def like_toggle(request, review_id):
     """
