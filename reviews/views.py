@@ -21,7 +21,7 @@ def get_visible_review(request, review_id):
     content cannot be read by guessing review IDs.
     """
     review = get_object_or_404(
-        Review.objects.select_related('author'), id=review_id
+        Review.objects.select_related('author__user'), id=review_id
     )
     user = request.user
     is_author = (
@@ -40,7 +40,7 @@ class ReviewList(generic.ListView):
         Review.objects
         .filter(approved=True)
         .order_by("-created_on")
-        .select_related('author')
+        .select_related('author__user')
     )
     queryset = queryset.annotate(
         comment_count=Count('comments',
@@ -70,7 +70,12 @@ def review_detail(request, review_id):
     """
 
     review = get_visible_review(request, review_id)
-    comments = review.comments.all().order_by("-replied_on")
+    # Load each comment's author and user up front (one query in total,
+    # instead of two extra queries per comment when the page renders).
+    comments = (
+        review.comments.select_related('author__user')
+        .order_by("-replied_on")
+    )
     comment_count = review.comments.filter(approved=True).count()
     like_count = review.likes.count()
     liked = False

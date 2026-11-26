@@ -14,7 +14,9 @@ def profile_page(request):
     Renders the profile page of the current logged in user.
     """
 
-    profile = get_object_or_404(UserProfile, user=request.user)
+    profile = get_object_or_404(
+        UserProfile.objects.select_related('user'), user=request.user
+    )
     try:
         review = profile.review
         review_id = review.id
@@ -23,13 +25,20 @@ def profile_page(request):
         review_id = None
         like_count = 0
 
-    comments = Comment.objects.filter(review_id=review_id)
-    comment_count = comments.filter(approved=True).count()
+    comment_count = Comment.objects.filter(
+        review_id=review_id, approved=True
+    ).count()
+    # The user's own comments, with the review, its author and that
+    # author's user loaded in the same query (the template shows all three).
+    user_comments = (
+        Comment.objects.filter(author=profile)
+        .select_related('review__author__user')
+    )
 
     context = {
         'profile': profile,
         'review_id': review_id,
-        'comments': comments,
+        'user_comments': user_comments,
         'comment_count': comment_count,
         'like_count': like_count,
     }

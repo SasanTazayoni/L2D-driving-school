@@ -26,6 +26,12 @@ class UserProfile(models.Model):
 
     objects = UserProfileQuerySet.as_manager()
 
+    class Meta:
+        indexes = [
+            # Public profile list / sitemap: WHERE approved
+            models.Index(fields=["approved"], name="profile_approved_idx"),
+        ]
+
     @property
     def is_public(self):
         """Whether anyone (including logged-out visitors) may see it."""

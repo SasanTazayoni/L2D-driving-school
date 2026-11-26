@@ -881,3 +881,67 @@ class AdminSearchTest(TestCase):
         response = self.client.get('/admin/reviews/comment/?q=Searchable')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['cl'].result_count, 1)
+
+
+
+class QueryCountStabilityTest(TestCase):
+    """
+    Page cost must not grow with content (no N+1 queries): each page makes
+    the same number of database queries with 1 item as with 5.
+    """
+    def setUp(self):
+        self.viewer = User.objects.create_user(
+            'viewer', 'viewer@example.com', 'password', first_name='Viewer')
+        self.target = User.objects.create_user(
+            'target', 'target@example.com', 'password', first_name='Target')
+        self.target_review = Review.objects.create(
+            author=self.target.profile, rating=5, content='t', approved=True)
+        self.added = 0
+
+    def add_items(self, count):
+        """Each item: another user's approved review that the viewer
+        commented on, plus a comment by that user on the target review."""
+        for _ in range(count):
+            self.added += 1
+            user = User.objects.create_user(
+                f'u{self.added}', f'u{self.added}@example.com', 'password',
+                first_name=f'User{self.added}')
+            review = Review.objects.create(
+                author=user.profile, rating=4, content='x', approved=True)
+            Comment.objects.create(
+                review=review, author=self.viewer.profile,
+                content='c', approved=True)
+            Comment.objects.create(
+                review=self.target_review, author=user.profile,
+                content='c', approved=True)
+        UserProfile.objects.update(approved=True)
+
+    def query_count(self, url, user=None):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        if user:
+            self.client.force_login(user)
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+        self.client.logout()
+        self.assertEqual(response.status_code, 200)
+        return len(queries)
+
+    def assert_flat(self, url, user=None):
+        self.add_items(1)
+        with_one = self.query_count(url, user)
+        self.add_items(4)
+        with_five = self.query_count(url, user)
+        self.assertEqual(with_one, with_five, f'{url}: queries grow with content')
+
+    def test_reviews_list(self):
+        self.assert_flat(reverse('reviews'))
+
+    def test_review_detail(self):
+        self.assert_flat(reverse('review_detail', args=[self.target_review.id]))
+
+    def test_profile_page(self):
+        self.assert_flat(reverse('profile_page'), self.viewer)
+
+    def test_user_profiles(self):
+        self.assert_flat(reverse('user_profiles'))

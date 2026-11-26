@@ -108,9 +108,9 @@
           </div>
           <div class="col-12 text-center mt-3">
             <!-- All comments by user -->
-            {% if profile.commenter.all %}
+            {% if user_comments %}
               <h3>Your Comments</h3>
-              {% for comment in profile.commenter.all %}
+              {% for comment in user_comments %}
                 {% if comment.approved %}
                   <div class="profile-content mb-4">
                     <p class="mb-3">{{ comment.replied_on }} - <a class="link" href="{% url 'review_detail' comment.review.id %}" class="link">Review by
@@ -193,7 +193,7 @@
     </div>
   {% endif %}
 
-  {% for comment in profile.commenter.all %}
+  {% for comment in user_comments %}
   <!-- Delete Comment Modal -->
     <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1"
       role="dialog" aria-modal="true"

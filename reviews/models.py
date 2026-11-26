@@ -35,6 +35,13 @@ class Review(models.Model):
 
     class Meta:
         ordering = ["-created_on"]
+        indexes = [
+            # Public review list: WHERE approved ORDER BY created_on DESC
+            models.Index(
+                fields=["approved", "-created_on"],
+                name="review_approved_created_idx",
+            ),
+        ]
 
     def __str__(self):
         return f"Written by {self.author} on {self.created_on}"
@@ -60,6 +67,13 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ["-replied_on"]
+        indexes = [
+            # Comment counts: WHERE review_id = ? AND approved
+            models.Index(
+                fields=["review", "approved"],
+                name="comment_review_approved_idx",
+            ),
+        ]
 
     def __str__(self):
         return f"Written by {self.author} on {self.replied_on}"
