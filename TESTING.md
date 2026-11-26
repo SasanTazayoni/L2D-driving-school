@@ -344,7 +344,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Untick "approved" on a comment | The comment disappears from the review page and its author sees it marked "(hidden by admin)" | Pass | Also covered by automated tests |
 | Security | | | | |
 | | Visit the site using `http://` | Redirected to `https://` | To test | Only applies on the deployed site |
-| | Open the browser's developer console on each page (including Contact and Appointments) | No Content-Security-Policy warnings are shown | To test | Check before setting `CSP_ENFORCE` to `True` |
+| | Open the browser's developer console on each page (including Contact and Appointments) | No Content-Security-Policy warnings are shown | Pass | Checked in report-only mode before enforcing; the only remaining console messages on Appointments come from inside Calendly's own frame. The external resources on Home, Contact and Appointments are also checked against the policy by an automated test |
 | | Look at the response headers of any page | A Content-Security-Policy header is present (the admin is excluded) | Pass | Also covered by automated tests |
 | | Send a file to the text editor's upload address (`/summernote/upload_attachment/`), logged out or as staff | The upload is refused (403) and nothing is stored | Pass | Also covered by automated tests |
 | | Enter HTML such as `<script>` in "About me" and view the profile | The text is shown as plain text and does not run | Pass | Also covered by automated tests |
