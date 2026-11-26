@@ -220,3 +220,38 @@ class ProfileDetailViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'core/profile_detail.html')
+
+
+class AboutMeEscapingTest(TestCase):
+    """
+    User-entered 'About me' text must be HTML-escaped (stored XSS guard)
+    on both the public profile page and the user's own profile page.
+    """
+    payload = '<script>alert("xss")</script>\nSecond line'
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='mallory', email='m@example.com', password='password'
+        )
+        profile = UserProfile.objects.get(user=self.user)
+        profile.about_me = self.payload
+        profile.save()
+
+    def assert_escaped(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<script>alert("xss")</script>')
+        self.assertContains(
+            response, '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+        )
+        self.assertContains(response, '<br>Second line')
+
+    def test_public_profile_detail_escapes_about_me(self):
+        response = self.client.get(
+            reverse('profile_detail', args=[self.user.id])
+        )
+        self.assert_escaped(response)
+
+    def test_own_profile_page_escapes_about_me(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('profile_page'))
+        self.assert_escaped(response)

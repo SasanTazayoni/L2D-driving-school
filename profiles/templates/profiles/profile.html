@@ -44,7 +44,7 @@
             <h3>About me</h3>
             {% if profile.about_me %}
               <div class="profile-content">
-                {{ profile.about_me | safe }}
+                {{ profile.about_me|linebreaksbr }}
               </div>
             {% else %}
               <div class="profile-content italic">
