@@ -358,6 +358,15 @@ textarea {
     text-align: center;
     width: 160px;
     height: 45px;
+    /* Bootstrap 5.3 buttons switch to a transparent background on hover,
+       click and focus; keep this button dark blue with white text instead
+       (the white glow comes from ::before below). */
+    --bs-btn-hover-bg: var(--color-secondary);
+    --bs-btn-hover-color: var(--block-light);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-bg: var(--color-secondary);
+    --bs-btn-active-color: var(--block-light);
+    --bs-btn-active-border-color: transparent;
 }
 
 .auth-button:hover {
