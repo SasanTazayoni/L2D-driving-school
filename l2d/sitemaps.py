@@ -45,7 +45,7 @@ class ProfileSitemap(Sitemap):
     priority = 0.6
 
     def items(self):
-        return UserProfile.objects.public().select_related('user')
+        return UserProfile.objects.public().select_related('user').order_by('id')
 
     def location(self, item):
         return reverse('profile_detail', args=[item.user.id])
