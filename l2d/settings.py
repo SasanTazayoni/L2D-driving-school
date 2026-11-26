@@ -138,6 +138,14 @@ CONTENT_SECURITY_POLICY = {
     "style-src": [
         "'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com",
     ],
+    # Calendly's embed script sets one of these exact style attributes on
+    # the scheduler's container (desktop / mobile). Only these two strings
+    # are allowed; the same styles are also set in styles.css.
+    "style-src-attr": [
+        "'unsafe-hashes'",
+        "'sha256-0x15zSwlja5ZGjL0WREs1YiAedhlflNIZ6PjB45Bd6s='",
+        "'sha256-POtGay9otE/T34W0bDDKsyTeP4YevJoI6gu4No9+o3o='",
+    ],
     "font-src": ["'self'", "https://fonts.gstatic.com"],
     # Profile pictures (Cloudinary); Bootstrap draws some icons as data: SVGs
     "img-src": ["'self'", "data:", "https://res.cloudinary.com"],

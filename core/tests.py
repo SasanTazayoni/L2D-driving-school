@@ -518,3 +518,21 @@ class ContentSecurityPolicyTest(TestCase):
                 self.assertIn(
                     origin, policy[directive],
                     f'{name}: {url} is not allowed by {directive}')
+
+    def test_allows_only_calendlys_two_inline_styles(self):
+        """
+        Calendly's embed script sets one of two fixed style attributes on its
+        container; the policy allows exactly those, by hash, and nothing else.
+        """
+        import base64
+        import hashlib
+        response = self.client.get(reverse('home'))
+        policy = self.directives(
+            response.headers['Content-Security-Policy-Report-Only'])
+        for style in ('position: relative;null',
+                      'position: relative;-webkit-overflow-scrolling:touch;null'):
+            digest = base64.b64encode(
+                hashlib.sha256(style.encode()).digest()).decode()
+            self.assertIn(f"'sha256-{digest}'", policy['style-src-attr'])
+        self.assertEqual(len(policy['style-src-attr']), 3)
+        self.assertNotIn("'unsafe-inline'", policy['style-src-attr'])

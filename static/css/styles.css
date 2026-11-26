@@ -1814,3 +1814,10 @@ footer i {
     border-radius: 20px;
     margin: 20px 0;
 }
+
+/* Calendly's embed script also sets these inline; set them here too so
+   the scheduler looks right whatever the Content-Security-Policy allows */
+.calendly-inline-widget {
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
