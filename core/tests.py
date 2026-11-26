@@ -454,3 +454,67 @@ class RobotsAndSitemapTest(TestCase):
         self.assertIn(reverse('profile_detail', args=[public.id]), body)
         self.assertNotIn(reverse('profile_detail', args=[hidden.id]), body)
         self.assertNotIn('example.com/', body)
+
+
+
+class ContentSecurityPolicyTest(TestCase):
+    """
+    The Content-Security-Policy header is sent (report-only until enforced),
+    skips the admin, and allows every external resource the pages use.
+    """
+    def directives(self, header_value):
+        parsed = {}
+        for part in header_value.split(';'):
+            name, *sources = part.split()
+            parsed[name] = sources
+        return parsed
+
+    def test_report_only_by_default(self):
+        response = self.client.get(reverse('home'))
+        self.assertIn('Content-Security-Policy-Report-Only', response.headers)
+        self.assertNotIn('Content-Security-Policy', response.headers)
+        policy = self.directives(response.headers['Content-Security-Policy-Report-Only'])
+        self.assertEqual(policy['default-src'], ["'self'"])
+        self.assertEqual(policy['object-src'], ["'none'"])
+        self.assertNotIn("'unsafe-inline'", ' '.join(sum(policy.values(), [])))
+
+    def test_enforced_when_switched_on(self):
+        from django.test import override_settings
+        with override_settings(CSP_ENFORCE=True):
+            response = self.client.get(reverse('home'))
+        self.assertIn('Content-Security-Policy', response.headers)
+        self.assertNotIn('Content-Security-Policy-Report-Only', response.headers)
+
+    def test_admin_is_excluded(self):
+        response = self.client.get('/admin/login/')
+        self.assertNotIn('Content-Security-Policy', response.headers)
+        self.assertNotIn('Content-Security-Policy-Report-Only', response.headers)
+
+    def test_policy_allows_every_external_resource_the_pages_use(self):
+        import re
+        from urllib.parse import urlparse
+        user = User.objects.create_user('csp', 'csp@example.com', 'password')
+        UserProfile.objects.filter(user=user).update(approved=True)
+        self.client.force_login(user)
+        checks = [
+            (r'<script[^>]+src="(https://[^"]+)"', 'script-src'),
+            (r'<link[^>]+rel="stylesheet"[^>]+href="(https://[^"]+)"', 'style-src'),
+            (r'<link[^>]+href="(https://[^"]+)"[^>]+rel="stylesheet"', 'style-src'),
+            (r'<iframe[^>]+src="(https://[^"]+)"', 'frame-src'),
+            (r'<form[^>]+action="(https://[^"]+)"', 'form-action'),
+        ]
+        for name in ('home', 'contact', 'appointments'):
+            response = self.client.get(reverse(name))
+            html = response.content.decode()
+            policy = self.directives(
+                response.headers['Content-Security-Policy-Report-Only'])
+            # Calendly's widget turns this into an iframe from calendly.com
+            urls = [(m, 'frame-src') for m in re.findall(
+                r'data-url="(https://[^"]+)"', html)]
+            for pattern, directive in checks:
+                urls += [(m, directive) for m in re.findall(pattern, html)]
+            for url, directive in urls:
+                origin = '{0.scheme}://{0.netloc}'.format(urlparse(url))
+                self.assertIn(
+                    origin, policy[directive],
+                    f'{name}: {url} is not allowed by {directive}')

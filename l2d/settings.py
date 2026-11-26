@@ -123,9 +123,38 @@ SUMMERNOTE_CONFIG = {
     'attachment_require_authentication': True,
 }
 
+# Content-Security-Policy (see l2d/middleware.py). Sent in report-only mode
+# until the CSP_ENFORCE environment variable is set to "True", so the policy
+# can be checked in the browser console on the live site first.
+CSP_ENFORCE = os.environ.get("CSP_ENFORCE") == "True"
+CSP_EXCLUDED_PATHS = ("/admin/", "/summernote/")
+CONTENT_SECURITY_POLICY = {
+    "default-src": ["'self'"],
+    # Bootstrap (jsDelivr) and Calendly's booking widget
+    "script-src": [
+        "'self'", "https://cdn.jsdelivr.net", "https://assets.calendly.com",
+    ],
+    # Bootstrap (jsDelivr) and Google Fonts
+    "style-src": [
+        "'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com",
+    ],
+    "font-src": ["'self'", "https://fonts.gstatic.com"],
+    # Profile pictures (Cloudinary); Bootstrap draws some icons as data: SVGs
+    "img-src": ["'self'", "data:", "https://res.cloudinary.com"],
+    # Embedded Calendly scheduler and Google Map
+    "frame-src": ["https://calendly.com", "https://www.google.com"],
+    "connect-src": ["'self'"],
+    # Site forms, plus the contact form, which posts to Formspree
+    "form-action": ["'self'", "https://formspree.io"],
+    "frame-ancestors": ["'none'"],
+    "base-uri": ["'self'"],
+    "object-src": ["'none'"],
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'l2d.middleware.ContentSecurityPolicyMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

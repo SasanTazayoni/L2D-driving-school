@@ -63,7 +63,7 @@ You can access the application [here](https://l2d-driving-school-6f23811ec0fb.he
 
 ### 9. Security Hardening
 **Challenge:** A public site with user accounts and user-generated content needs protection beyond the framework defaults.
-**Solution:** HTTPS is enforced on Heroku (redirects, secure cookies and HSTS). User-entered text is always HTML-escaped to prevent cross-site scripting. Actions that change data (liking, commenting, editing) only accept genuine form submissions, the rich-text editor's file upload endpoint is disabled, the read-only email field is enforced on the server, and the app refuses to start on Heroku if a required configuration variable is missing. Each of these is covered by automated tests.
+**Solution:** HTTPS is enforced on Heroku (redirects, secure cookies and HSTS). User-entered text is always HTML-escaped to prevent cross-site scripting. Actions that change data (liking, commenting, editing) only accept genuine form submissions, the rich-text editor's file upload endpoint is disabled, the read-only email field is enforced on the server, and the app refuses to start on Heroku if a required configuration variable is missing. A Content-Security-Policy header limits where scripts, styles, frames and form submissions may come from, as a second line of defence against injected scripts. Each of these is covered by automated tests.
 
 ### 10. Performance
 **Challenge:** Pages listing reviews, comments and users became slower as content grew, and static files were re-downloaded on every visit.
@@ -681,8 +681,11 @@ Deployment steps are as follows, after account setup:
 | `HOST` | user's own value |
 | `EMAIL_HOST_PASS` | user's own value |
 | `EMAIL_HOST_USER` | user's own value |
+| `CSP_ENFORCE` | `True` (optional: see below) |
 
 The app checks these on start-up and refuses to run on Heroku if any of them is missing, naming the missing variable in the logs (`heroku logs --tail`).
+
+`CSP_ENFORCE` controls the Content-Security-Policy. Without it, the policy is only *reported*: browsers list anything it would block in the developer console but block nothing. Once the deployed pages show no such warnings, set `CSP_ENFORCE` to `True` to switch it on. If anything ever breaks, removing the variable switches it back to report-only without a code change.
 
 > **Do not set `DISABLE_COLLECTSTATIC`.** Heroku must run `collectstatic` during every build: the site serves static files under content-hashed names (for example `styles.60d00a2451b6.css`), and pages fail to load if that step is skipped.
 
