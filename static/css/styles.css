@@ -1560,6 +1560,9 @@ footer i {
 .pagination .pagination-button.active {
     color: var(--block-light);
     background-color: var(--color-secondary);
+    /* The current page isn't clickable: no hover effect or ripple */
+    cursor: default;
+    pointer-events: none;
 }
 
 @media screen and (max-width: 1399px) {

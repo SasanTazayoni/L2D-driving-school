@@ -15,6 +15,10 @@ authBtns.forEach(btn => {
 });
 
 function createRipple(e) {
+    // No hover ripple on the button for the page you are already on.
+    if (this.classList.contains('active')) {
+        return;
+    }
     const rect = e.target.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;

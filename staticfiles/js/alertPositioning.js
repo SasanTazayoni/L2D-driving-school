@@ -11,10 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
     positionAlertContainer();
     window.addEventListener('resize', positionAlertContainer);
 
-    const alertElements = document.querySelectorAll('[data-alert] .alert');
-    alertElements.forEach((alertElement) => {
-        setTimeout(() => {
-            alertElement.remove();
-        }, 7000);
+    // Success/info toasts fade out via CSS (paused while hovered or focused).
+    // Remove each one only when its fade has actually finished. Errors and
+    // warnings have no fade and stay until closed with the x.
+    document.querySelectorAll('[data-alert] .alert.auto-dismiss').forEach((alertElement) => {
+        alertElement.addEventListener('animationend', (event) => {
+            if (event.animationName === 'fadeOut') {
+                alertElement.remove();
+            }
+        });
     });
 });
