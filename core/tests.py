@@ -352,3 +352,22 @@ class ProfileVisibilityTest(TestCase):
         self.assertContains(response, 'Pendina')
         self.assertNotContains(
             response, reverse('profile_detail', args=[self.pending.id]))
+
+
+
+class ToastCloseButtonTest(TestCase):
+    """
+    Flash messages (toasts) have a close button that dismisses them.
+    """
+    def test_message_has_close_button(self):
+        user = User.objects.create_user('toaster', 't@example.com', 'password')
+        self.client.force_login(user)
+        # An unapproved user visiting appointments gets an error message.
+        response = self.client.get(reverse('appointments'), follow=True)
+        self.assertContains(response, 'not currently authorised')
+        self.assertContains(
+            response,
+            '<button type="button" class="btn-close" data-bs-dismiss="alert" '
+            'aria-label="Close message"></button>',
+            html=True,
+        )
