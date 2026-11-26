@@ -8,6 +8,7 @@ User = get_user_model()
 
 admin.site.unregister(User)
 
+
 @admin.register(User)
 class CustomUserAdmin(DefaultUserAdmin):
     """

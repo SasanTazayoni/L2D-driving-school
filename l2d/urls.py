@@ -51,5 +51,10 @@ urlpatterns = [
     path("summernote/", include("django_summernote.urls")),
     path("user-profiles/", include("core.urls")),
     path("robots.txt", robots_txt, name="robots_txt"),
-    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
 ]

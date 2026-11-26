@@ -14,4 +14,5 @@ class ProfilesConfig(AppConfig):
 
     def ready(self):
         # Imported for its side effect: registers the profile signal.
-        import profiles.signals  # pylint: disable=import-outside-toplevel,unused-import
+        # pylint: disable-next=import-outside-toplevel,unused-import
+        import profiles.signals

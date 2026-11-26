@@ -6,7 +6,8 @@ from .models import UserProfile
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 # Django passes `sender` to every receiver, even when it is not used.
-def create_user_profile(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+# pylint: disable-next=unused-argument
+def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(
             user=instance,
