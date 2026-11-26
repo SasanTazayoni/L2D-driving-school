@@ -58,9 +58,8 @@ I have used the recommended [JShint Validator](https://jshint.com) to validate a
 | alertPositioning.js | ![screenshot](documentation/testing/javascript-validation-alert-positioning.png) | Pass: No Errors |
 | buttons.js | ![screenshot](documentation/testing/javascript-validation-buttons.png) | Pass: No Errors |
 | disableSubmitButton.js | ![screenshot](documentation/testing/javascript-validation-disable-submit-button.png) | Pass: No Errors |
-| editProfile.js | ![screenshot](documentation/testing/javascript-validation-edit-profile.png) | Pass: No Errors |
-| overlay.js | ![screenshot](documentation/testing/javascript-validation-overlay.png) | Pass: No Errors |
-| pagination.js | ![screenshot](documentation/testing/javascript-validation-pagination.png) | Pass: No Errors |
+
+*editProfile.js*, *overlay.js* and *pagination.js* have since been removed: the edit profile page now shows the current picture without JavaScript, the home page overlay appears immediately, and pagination links keep the search on their own.
 
 ### Python
 
@@ -86,6 +85,12 @@ I have used the recommended [PEP8 CI Python Linter](https://pep8ci.herokuapp.com
 | views.py (reviews) | [PEP8 CI](https://pep8ci.herokuapp.com/https://raw.githubusercontent.com/SasanTazayoni/L2D-driving-school-CI-PP4/main/reviews/views.py) | ![screenshot](documentation/testing/python-validation-reviews-views.png) | Pass: No Errors |
 | settings.py (l2d) | [PEP8 CI](https://pep8ci.herokuapp.com/https://raw.githubusercontent.com/SasanTazayoni/L2D-driving-school-CI-PP4/main/l2d/settings.py) | ![screenshot](documentation/testing/python-validation-l2d-settings.png) | Pass: No Errors |
 | urls.py (l2d) | [PEP8 CI](https://pep8ci.herokuapp.com/https://raw.githubusercontent.com/SasanTazayoni/L2D-driving-school-CI-PP4/main/l2d/urls.py) | ![screenshot](documentation/testing/python-validation-l2d-urls.png) | Pass: No Errors |
+| views.py (l2d) | [PEP8 CI](https://pep8ci.herokuapp.com/https://raw.githubusercontent.com/SasanTazayoni/L2D-driving-school-CI-PP4/main/l2d/views.py) | ![screenshot](documentation/testing/python-validation-l2d-views.png) | Pass: No Errors |
+| sitemaps.py (l2d) | [PEP8 CI](https://pep8ci.herokuapp.com/https://raw.githubusercontent.com/SasanTazayoni/L2D-driving-school-CI-PP4/main/l2d/sitemaps.py) | ![screenshot](documentation/testing/python-validation-l2d-sitemaps.png) | Pass: No Errors |
+
+In addition, all Python files (including the tests) are checked with [Pylint](https://pylint.readthedocs.io) using the [pylint-django](https://github.com/pylint-dev/pylint-django) plugin, with no errors or warnings. The project's VS Code settings run Pylint automatically; to run it by hand:
+
+`pylint core profiles reviews l2d --load-plugins=pylint_django --django-settings-module=l2d.settings`
 
 
 ## Browser Compatibility
@@ -138,6 +143,8 @@ I've tested every page on my deployed project on multiple devices to check for r
 
 I've tested my deployed project using the Lighthouse Audit tool to check for any major issues.
 
+*Note: these results were recorded before later performance work (fewer database queries per page, compressed and long-term-cached static files, and inline SVG icons replacing the Font Awesome stylesheet and fonts).*
+
 | Page | Mobile | Desktop | Notes |
 | --- | --- | --- | --- |
 | Home | ![screenshot](documentation/testing/lighthouse-home-mobile.png) | ![screenshot](documentation/testing/lighthouse-home-desktop.png) | No significant warnings |
@@ -170,8 +177,13 @@ Defensive programming was manually tested with the below user acceptance testing
 | | If the user is authenticated | "Log out" button and the "Profile" link appears in the navigation bar | Pass | |
 | | If the user is not authenticated | "Log in/Sign up" button appears in the navigation bar and the "Profile" link and "Appointments" link are not available | Pass | |
 | | User profile is approved by admin | "Appointments" link appears in the navigation bar | Pass | |
+| | A success message appears (e.g. after logging in) | Message fades out after a few seconds; hovering over it pauses the fade | To test | |
+| | An error message appears (e.g. visiting Appointments when not approved) | Message stays until the user closes it | Pass | Also covered by automated tests |
+| | Click the × on a message | The message fades out quickly | To test | |
+| | Look at the navigation links with a screen reader | Only the link for the current page is announced as the current page | Pass | Also covered by automated tests |
 | Home | | | | |
 | | Non-authenticated users | The buttons "Sign up" and "Reviews" appear | Pass | |
+| | Load the home page | The heading and buttons are visible straight away | Pass | Also covered by automated tests |
 | | Click on "Home" link in the navigation bar | User will be redirected to the home page | Pass | |
 | | Click the "Sign up" button | Redirects user to sign up form | Pass | |
 | | Click the "Reviews" button | Redirects user to reviews page | Pass | |
@@ -183,10 +195,12 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Click on "Reviews" link in the navigation bar | User will be redirected to the reviews page | Pass | |
 | | Click on a review card | Redirects user to review details page | Pass | |
 | | Click on the pagination number | Shows a set of review cards according to the page number | Pass | |
+| | Hover over the number of the current page | No hover effect; the current page is not clickable | To test | |
+| | View the reviews page when there are no approved reviews | "No reviews yet" is shown instead of an average rating | Pass | Also covered by automated tests |
 | Review details | | | | |
 | | Click on a review card on the "Reviews" page | Redirects user to review details page | Pass | |
 | | If the user has made a review, click on the "View details" link | Redirects to the review details page | Pass | |
-| | Click on the author's name on the review details page | Redirects user to the author's profile | Pass | |
+| | Click on the author's name on the review details page | Redirects user to the author's profile | Pass | The name is only a link once the author's profile has been approved |
 | | Add like if user has not given a like already | Like count increases | Pass | The heart icon shows as red if the user has liked already and an outline if they have not. Like is applied to the review identified by the URL, not any form data. |
 | | Remove like if user has given a like already | Like count decreases | Pass | The heart icon shows as red if the user has liked already and an outline if they have not |
 | | As an authenticated user click "Edit review" button (available if it is your review) | User redirected to review form | Pass | |
@@ -198,10 +212,17 @@ Defensive programming was manually tested with the below user acceptance testing
 | | As an authenticated user click "Delete comment" button (available if it is your comment) | Modal pops up | Pass | |
 | | After clicking "Delete comment", click the "No" button on the modal that pops up | Closes the modal | Pass | |
 | | After clicking "Delete comment", click off the modal that pops up | Closes the modal | Pass | |
-| | After clicking "Delete comment", click the "Yes" button on the modal that pops up | The comment will be deleted | Pass | |
+| | After clicking "Delete comment", click the "Yes" button on the modal that pops up | The comment will be deleted and the user stays on the review details page | Pass | Also covered by automated tests |
 | | As an authenticated user click the "Submit" button with an empty Comments form | Page re-renders with validation errors shown on the form; comment is not created | Pass | |
-| | As an authenticated user click the "Submit" button with content in the Comments form | The form will be submitted for approval and a django message will appear | Pass | |
-| | Brute forcing the review details URL when not authenticated in order to add a comment | The review detail page will be shown as it should for an unauthenticated user | Pass | |
+| | As an authenticated user click the "Submit" button with content in the Comments form | The comment is published immediately and a django message will appear | Pass | Also covered by automated tests |
+| | Submitting a comment when not authenticated (e.g. a crafted request to the review details URL) | User is redirected to the login page and no comment is created | Pass | Also covered by automated tests |
+| | Click the "Clear" button on the Comments form | Clears the comment box | To test | |
+| | Double-click the "Submit" button on the Comments form | The comment is only submitted once | To test | |
+| | Edit an existing comment and save | The change is saved and the comment stays published | Pass | Also covered by automated tests |
+| | Brute forcing the URL of a review that is pending approval, when not its author or staff | A "page not found" (404) page is shown | Pass | Also covered by automated tests |
+| | As the author, open your own review while it is pending approval | The review is shown with a "pending admin approval" notice and no like button or comment form | Pass | Also covered by automated tests |
+| | Liking a review through a plain link instead of the heart button (e.g. pasting the like URL into the address bar) | The request is refused (405) and the like count does not change | Pass | Also covered by automated tests |
+| | Brute forcing the edit comment URL with a different review's ID | A "page not found" (404) page is shown and the comment is not moved | Pass | Also covered by automated tests |
 | Appoinments | | | | |
 | | As an authenticated user that has been approved by the admin click on "Apppointments" link in the navigation bar | User will be redirected to the appointments page | Pass | |
 | | As an authenticated user that has been approved by the admin, access Calendly | User can manage their appointments | Pass | |
@@ -229,23 +250,25 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Brute forcing the profile URL when not authenticated | User redirected to login page | Pass | |
 | Edit profile | | | | |
 | | Click "Edit profile" button on the profile page | User redirected to edit profile form | Pass | |
-| | Attempt to edit profile and click the "Submit" button | All fields can be edited except the email and will be changed | Pass | |
-| | Add a different picture and click the "Submit" button | User picture will change | Pass | |
-| | Click "Remove picture" checkbox and click the "Submit" button | User picture is removed | Pass | |
+| | Attempt to edit profile and click the "Submit" button | All fields can be edited except the email and will be changed | Pass | The email box is disabled, and a crafted request that changes it is ignored by the server (also covered by automated tests) |
+| | Add a different picture and click the "Submit" button | User picture will change | Pass | The current picture is shown as a preview above the upload field |
+| | Click "Remove picture" checkbox and click the "Submit" button | User picture is removed | Pass | The checkbox only appears when there is a picture to remove |
 | | Click "Cancel" button | User redirected to profile | Pass | |
 | | Brute forcing the edit profile URL when not authenticated | User redirected to login page | Pass | |
 | Edit review | | | | |
 | | Click "Edit review" button on the profile page or on the review detail page (available if it is your review) | User redirected to review form | Pass | |
 | | Attempt to edit review and click the "Save" button with blank field | User prompted to fill out form and form is not submitted | Pass | |
-| | Attempt to edit review and click the "Save" with correct fields | The fields will be changed | Pass | |
+| | Attempt to edit review and click the "Save" with correct fields | The fields will be changed and the review goes back to pending approval until the admin approves it again | Pass | Also covered by automated tests |
+| | Click "Save" without changing anything | The review stays approved | Pass | Also covered by automated tests |
 | | Brute forcing the edit review URL when not authenticated | User redirected to login page | Pass | |
 | User profiles | | | | |
 | | Click on the "User profiles" link | User will be redirected to the user profiles page | Pass | |
 | | Click on the "Search" button with no entry | User will be prompted to enter an input and the form will not be submitted | Pass | |
 | | Click on the "Search" button with an entry | The search will return a paginated list of users, if the search finds nothing then it will display a message | Pass | |
-| | Click on the "Show all" button | Shows all users in a paginated gallery | Pass | |
+| | Click on the "Show all" button | Shows all approved users in a paginated gallery | Pass | Unapproved and staff accounts are not listed (also covered by automated tests) |
 | | Click on the user profile thumbnail | Redirects to the respective user's profile | Pass | |
 | | Click on the pagination number | Shows a set of user profiles according to the page number | Pass | |
+| | Search, then move to page 2 of the results | Page 2 still only shows users matching the search | Pass | Also covered by automated tests |
 | User profile | | | | |
 | | Click on the user profile thumbnail on the user profiles page | Redirects to the respective user's profile | Pass | |
 | | Non-authenticated users | The button "All users" apeears | Pass | |
@@ -253,6 +276,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Authenticated users | The buttons "All users" and "My profile" appear | Pass | |
 | | Click the "My profile" button | Redirects user to their profile page | Pass | |
 | | If the user has made a review, click on the "View details" link | Redirects to the review details page | Pass | |
+| | Brute forcing the URL of a profile that hasn't been approved, when not its owner or staff | A "page not found" (404) page is shown | Pass | Also covered by automated tests |
 | Terms & Conditions | | | | |
 | | Click on "Terms & Conditions" link in the footer | User will be redirected to the terms and conditions page | Pass | |
 | | View the page as any user (authenticated or not) | Page renders with all 13 sections visible inside a scrollable card | Pass | |
@@ -276,6 +300,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Click on the "Log in" button with empty fields | Gives an error message and prevents the user from logging in | Pass | |
 | | Click on the "Log in" button with incorrect credentials | Gives an error message and prevents the user from logging in | Pass | |
 | | Click on the "Log in" button with correct credentials | Logs the user in and shows a django message | Pass | Redirects to the home page |
+| | Double-click the "Log in" button | The form is only submitted once (no error page) | To test | |
 | | Authenticated users cannot access the "Log in/Sign up" button | "Log out" button appears instead of the "Log in/Sign up" button | Pass | |
 | | When authenticated, brute forcing the URL to get to the login page | Redirects to home page | Pass | |
 | Logout | | | | |
@@ -291,7 +316,7 @@ Defensive programming was manually tested with the below user acceptance testing
 | | Click on the "Reset" button | Clears the form fields | Pass | |
 | | Click on the "Sign up" button with empty fields | Gives error messages and prevents the user from signing up | Pass | |
 | | Click on the "Sign up" button without meeting the minimum requirements of the form | Gives error messages for each respective field and prevents the user from signing up | Pass | |
-| | Click on the "Sign up" button using the email and/or username of an existing account | Gives error messages and prevents the user from signing up | Pass | |
+| | Click on the "Sign up" button using the email and/or username of an existing account | Gives error messages and prevents the user from signing up | Pass | Also rejected when only the upper/lower case differs (also covered by automated tests) |
 | | Click on the "Sign up" button with correct inputs | Signs the user up, creates an account and shows a django message | Pass | Redirects to edit profle page |
 | | Authenticated users cannot access the "Log in/Sign up" button | "Log out" button appears instead of the "Log in/Sign up" button | Pass | |
 | | When authenticated, brute forcing the URL to get to the sign up page | Redirects to home page | Pass | |
@@ -313,6 +338,17 @@ Defensive programming was manually tested with the below user acceptance testing
 | Password reset confirmation | | | | |
 | | Resetting the password correctly using a token (via email) | Redirects to the password reset confirmation page | Pass | |
 | | Click on the "log in" link | Redirects user to the login page | Pass | |
+| Admin panel | | | | |
+| | Search reviews or comments by the author's name | Matching reviews/comments are listed | Pass | Also covered by automated tests |
+| | Open a review in the admin | The text editor loads normally | Pass | Also covered by automated tests |
+| | Untick "approved" on a comment | The comment disappears from the review page and its author sees it marked "(hidden by admin)" | Pass | Also covered by automated tests |
+| Security | | | | |
+| | Visit the site using `http://` | Redirected to `https://` | To test | Only applies on the deployed site |
+| | Send a file to the text editor's upload address (`/summernote/upload_attachment/`), logged out or as staff | The upload is refused (403) and nothing is stored | Pass | Also covered by automated tests |
+| | Enter HTML such as `<script>` in "About me" and view the profile | The text is shown as plain text and does not run | Pass | Also covered by automated tests |
+| Search engines | | | | |
+| | Visit `/robots.txt` | Shows the crawler rules and the full address of the sitemap | Pass | Also covered by automated tests |
+| | Visit `/sitemap.xml` | Lists the public pages, approved reviews and public profiles on the site's real domain | Pass | Also covered by automated tests |
 
 
 ## User Story Testing
@@ -373,11 +409,45 @@ I have used Django's built-in unit testing framework to test the application fun
 
 In order to run the tests, I ran the following command in the terminal:
 
-`python3 manage.py test`
+`python manage.py test`
+
+There are 122 tests in total:
+
+| App | Tests | What they cover |
+| --- | --- | --- |
+| core | 35 | Home, contact, legal and appointments pages; the user list (search, pagination, only approved users shown); public profile visibility; escaping of "About me" text; navigation, messages and double-submit protection; robots.txt and the sitemap; the disabled file upload endpoint |
+| profiles | 27 | Viewing, editing and deleting profiles; the email field being read-only on the server; the profile picture field; sign-up validation (including duplicates that differ only in upper/lower case); admin actions |
+| reviews | 60 | Creating, editing and deleting reviews and comments; moderation (pending reviews are private, edited reviews go back for approval, comments publish immediately); permissions (login required, own content only, likes only through the like button); admin search; page templates; and checks that each page uses the same number of database queries however much content there is |
+
+Every security fix listed in the Bugs section below has a test that would fail if the bug came back.
 
 ![screenshot](documentation/pythontesting.png)
 
 
 ## Bugs
 
-All bugs were solved during the process of creating the project and there are not any existing bugs that I am aware of.
+The following bugs were found during a later code review and fixed. Each fix is covered by an automated test.
+
+| Bug | Fix |
+| --- | --- |
+| Text in "About me" was displayed as raw HTML, so a user could add a script that ran for everyone viewing their profile | The text is now always escaped (shown as plain text), with line breaks kept |
+| Editing an approved review or comment kept it approved, so content could be changed after moderation | Edited reviews go back to pending approval (comments no longer need approval) |
+| Reviews waiting for approval could be read by anyone who guessed their address | Only the author and staff can see a pending review; everyone else gets a 404 |
+| A review could be liked or unliked through a plain link, so another website could make visitors like reviews without knowing | Likes only change through the like button's form |
+| Submitting a comment while logged out caused a server error | Logged-out visitors are sent to the login page |
+| A comment could be moved onto a different review by editing the address | The comment must belong to the review in the address, otherwise 404 |
+| The "read-only" email on the edit profile form could be changed by editing the request, allowing two accounts to share an email | The server ignores any submitted email |
+| All accounts, including unapproved and admin accounts, were listed publicly with their personal details | Only approved, non-staff profiles are public |
+| The rich-text editor's upload address accepted files from anyone, without logging in | The upload address refuses all uploads |
+| Searching reviews or comments in the admin panel caused a server error | Search now looks up the author's name |
+| Users who already had a profile picture couldn't choose a new one, and the edit profile page raised a JavaScript error for users without one | The page now shows the current picture and a normal upload field without needing JavaScript |
+| Usernames differing only in upper/lower case (e.g. "Alex" and "alex") could both be registered | The custom sign-up checks were removed so allauth's case-insensitive checks apply |
+| Double-clicking "Log in" or "Sign up" could show a CSRF error page | Forms disable their submit button after the first click |
+| Deleting a comment from a review page went to the profile page instead of back to the review | The user now returns to where they deleted it from |
+| The reviews page showed "Average rating: None / 5" when there were no reviews | It now shows "No reviews yet" |
+| The home page heading and buttons were invisible for the first 3.5 seconds | They now appear immediately |
+| Messages disappeared after a few seconds with no way to keep or close them | Messages have a close button, pause on hover, and errors stay until closed |
+| robots.txt pointed to a placeholder sitemap address, and the sitemap listed every page on "example.com" | robots.txt is generated with the real address, and a migration sets the site's real domain |
+| The profile and review pages made more database queries the more comments there were (up to 34 per page) | Each page now makes a fixed number of queries |
+
+There are no known unfixed bugs.
