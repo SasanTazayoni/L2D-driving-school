@@ -688,6 +688,19 @@ a.red-button,
     z-index: 10;
 }
 
+.alert-dismissible .btn-close {
+    top: 6px;
+    right: 6px;
+    width: 0.6em;
+    height: 0.6em;
+    padding: 0.35em;
+    background-size: 0.6em;
+}
+
+.alert.fade {
+    transition: opacity 0.15s linear;
+}
+
 @keyframes fadeOut {
     from {
         opacity: 1;
@@ -1737,4 +1750,14 @@ footer i {
         font-size: 12px;
         padding-left: 5px;
     }
+}
+
+/* Current picture preview on the edit profile page */
+.current-profile-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 20px;
+    margin: 20px 0;
 }
