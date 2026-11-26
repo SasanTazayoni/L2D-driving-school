@@ -27,8 +27,10 @@
                     <span class="review-header">
                         {% if request.user.is_authenticated and review.author.user == request.user %}  
                             <a class="link" href="{% url 'profile_page' %}">{{ review.author|truncatechars:20 }}</a>
-                        {% else %}
+                        {% elif review.author.is_public %}
                             <a class="link" href="{% url 'profile_detail' review.author.user.id %}">{{ review.author|truncatechars:20 }}</a>
+                        {% else %}
+                            <span>{{ review.author|truncatechars:20 }}</span>
                         {% endif %}
                     </span>
                     <span class="author-date">- {{ review.created_on }}</span>

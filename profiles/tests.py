@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -181,18 +180,46 @@ class CustomSignupFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('username', form.errors)
 
-    def test_clean_first_name_valid(self):
-        """Test that a valid first name passes clean_first_name."""
-        form = CustomSignupForm(data={})
-        form.cleaned_data = {'first_name': 'Alice'}
-        self.assertEqual(form.clean_first_name(), 'Alice')
+    def signup_data(self, **overrides):
+        data = {
+            'first_name': 'Test',
+            'username': 'newuser',
+            'email': 'new@example.com',
+            'password1': 'TestPass123!',
+            'password2': 'TestPass123!',
+        }
+        data.update(overrides)
+        return data
 
-    def test_clean_first_name_empty_raises_error(self):
-        """Test that an empty first name in cleaned_data raises ValidationError."""
-        form = CustomSignupForm(data={})
-        form.cleaned_data = {'first_name': ''}
-        with self.assertRaises(ValidationError):
-            form.clean_first_name()
+    def test_valid_signup(self):
+        """A complete, unique signup is valid."""
+        self.assertTrue(CustomSignupForm(data=self.signup_data()).is_valid())
+
+    def test_missing_first_name_rejected(self):
+        """The name field is required."""
+        form = CustomSignupForm(data=self.signup_data(first_name=''))
+        self.assertFalse(form.is_valid())
+        self.assertIn('first_name', form.errors)
+
+    def test_missing_email_rejected(self):
+        """An email address is required."""
+        form = CustomSignupForm(data=self.signup_data(email=''))
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
+
+    def test_duplicate_email_different_case_rejected(self):
+        """Email uniqueness ignores case."""
+        form = CustomSignupForm(
+            data=self.signup_data(email='EXISTING@Example.com')
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
+
+    def test_duplicate_username_different_case_rejected(self):
+        """Username uniqueness ignores case."""
+        form = CustomSignupForm(data=self.signup_data(username='ExistingUser'))
+        self.assertFalse(form.is_valid())
+        self.assertIn('username', form.errors)
 
 
 class ProfileAdminTest(TestCase):
@@ -260,6 +287,7 @@ class ProfilePictureNullGuardTest(TestCase):
         )
         self.profile = UserProfile.objects.get_or_create(user=self.testuser)[0]
         self.profile.profile_picture = None
+        self.profile.approved = True
         self.profile.save()
 
     def test_profile_page_without_picture(self):
@@ -274,3 +302,61 @@ class ProfilePictureNullGuardTest(TestCase):
             reverse('profile_detail', kwargs={'user_id': self.testuser.id})
         )
         self.assertEqual(response.status_code, 200)
+
+
+
+class EditProfileSecurityTest(TestCase):
+    """
+    The email shown on the edit profile form is read-only on the server,
+    not just in the browser, and the picture field renders correctly.
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'bob', 'bob@example.com', 'password', first_name='Bob')
+        User.objects.create_user('alice', 'alice@example.com', 'password')
+        self.client.force_login(self.user)
+
+    def test_posted_email_is_ignored(self):
+        response = self.client.post(reverse('edit_profile'), {
+            'first_name': 'Robert', 'email': 'alice@example.com'})
+        self.assertRedirects(response, reverse('profile_page'))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Robert')
+        self.assertEqual(self.user.email, 'bob@example.com')
+        self.assertEqual(
+            User.objects.filter(email='alice@example.com').count(), 1)
+
+    def test_form_shows_current_email_as_disabled(self):
+        html = self.client.get(reverse('edit_profile')).content.decode()
+        self.assertIn('value="bob@example.com"', html)
+        self.assertRegex(html, r'<input[^>]*name="email"[^>]*disabled')
+
+    def test_picture_field_and_preview_with_existing_picture(self):
+        profile = self.user.profile
+        profile.profile_picture = 'sample_public_id'
+        profile.save()
+        html = self.client.get(reverse('edit_profile')).content.decode()
+        self.assertIn('type="file" name="profile_picture"', html)
+        self.assertIn('class="current-profile-picture"', html)
+        self.assertIn('name="remove_picture"', html)
+        self.assertNotIn('editProfile.js', html)
+
+    def test_no_preview_or_remove_option_without_picture(self):
+        html = self.client.get(reverse('edit_profile')).content.decode()
+        self.assertIn('type="file" name="profile_picture"', html)
+        self.assertNotIn('current-profile-picture', html)
+        self.assertNotIn('name="remove_picture"', html)
+
+    def test_saving_without_new_file_keeps_picture(self):
+        profile = self.user.profile
+        profile.profile_picture = 'sample_public_id'
+        profile.save()
+        self.client.post(reverse('edit_profile'), {'first_name': 'Bob'})
+        profile.refresh_from_db()
+        self.assertEqual(str(profile.profile_picture), 'sample_public_id')
+
+
+class UserProfileStrTest(TestCase):
+    def test_falls_back_to_username_without_first_name(self):
+        user = User.objects.create_user('nofirstname', 'n@example.com', 'pw')
+        self.assertEqual(str(user.profile), 'nofirstname')

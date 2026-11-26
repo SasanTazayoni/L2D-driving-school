@@ -1738,3 +1738,13 @@ footer i {
         padding-left: 5px;
     }
 }
+
+/* Current picture preview on the edit profile page */
+.current-profile-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 20px;
+    margin: 20px 0;
+}

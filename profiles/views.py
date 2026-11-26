@@ -59,9 +59,9 @@ def edit_profile(request):
             }
         )
         if form.is_valid():
-            user.email = request.POST.get('email')
-            user.first_name = request.POST.get('first_name')
-            user.save()
+            # Email is deliberately not updated here (see UserProfileForm).
+            user.first_name = form.cleaned_data['first_name']
+            user.save(update_fields=['first_name'])
 
             if 'remove_picture' in request.POST:
                 profile.profile_picture = None
@@ -81,6 +81,7 @@ def edit_profile(request):
     template = 'profiles/edit_profile.html'
     context = {
         'form': form,
+        'profile': profile,
     }
     return render(request, template, context)
 

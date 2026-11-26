@@ -148,6 +148,7 @@ class UserProfileSearchViewTest(TestCase):
             email='jane@example.com',
             password='password'
         )
+        UserProfile.objects.update(approved=True)
 
     def test_search_bar_with_empty_query(self):
         url = reverse('user_profiles')
@@ -161,7 +162,8 @@ class UserProfileSearchViewTest(TestCase):
         response = self.client.get(url, {'search_query': 'John'})
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'John')
+        names = [p.user.first_name for p in response.context['user_profiles']]
+        self.assertEqual(names, ['John'])
 
 
 class UserProfilePaginationViewTest(TestCase):
@@ -181,6 +183,8 @@ class UserProfilePaginationViewTest(TestCase):
             )
 
             profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.approved = True
+            profile.save()
             self.users.append((user, profile))
     
     def test_pagination(self):
@@ -213,6 +217,7 @@ class ProfileDetailViewTest(TestCase):
             password='password'
         )
         
+        UserProfile.objects.filter(user=self.testuser).update(approved=True)
         self.testuser_id = self.testuser.id
 
     def test_profile_detail_view(self):
@@ -235,6 +240,7 @@ class AboutMeEscapingTest(TestCase):
         )
         profile = UserProfile.objects.get(user=self.user)
         profile.about_me = self.payload
+        profile.approved = True
         profile.save()
 
     def assert_escaped(self, response):
@@ -290,3 +296,57 @@ class SummernoteUploadDisabledTest(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get('/admin/reviews/review/add/')
         self.assertEqual(response.status_code, 200)
+
+
+
+class ProfileVisibilityTest(TestCase):
+    """
+    Only approved, non-staff profiles are public. Other profiles are hidden
+    from the user list, the sitemap and their detail page (404), except to
+    their owner and to staff.
+    """
+    def setUp(self):
+        self.public = User.objects.create_user(
+            'pub', 'pub@example.com', 'password', first_name='Publica')
+        UserProfile.objects.filter(user=self.public).update(approved=True)
+        self.pending = User.objects.create_user(
+            'pend', 'pend@example.com', 'password', first_name='Pendina')
+        self.admin = User.objects.create_superuser(
+            'root', 'root@example.com', 'password', first_name='Rooty')
+        UserProfile.objects.filter(user=self.admin).update(approved=True)
+
+    def detail(self, user):
+        return self.client.get(reverse('profile_detail', args=[user.id]))
+
+    def test_user_list_shows_only_public_profiles(self):
+        response = self.client.get(reverse('user_profiles'))
+        names = [p.user.first_name for p in response.context['user_profiles']]
+        self.assertEqual(names, ['Publica'])
+
+    def test_unapproved_and_staff_profiles_are_404_to_the_public(self):
+        self.assertEqual(self.detail(self.public).status_code, 200)
+        self.assertEqual(self.detail(self.pending).status_code, 404)
+        self.assertEqual(self.detail(self.admin).status_code, 404)
+
+    def test_owner_can_view_own_unapproved_profile(self):
+        self.client.force_login(self.pending)
+        self.assertEqual(self.detail(self.pending).status_code, 200)
+
+    def test_staff_can_view_any_profile(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(self.detail(self.pending).status_code, 200)
+
+    def test_sitemap_lists_only_public_profiles(self):
+        content = self.client.get('/sitemap.xml').content.decode()
+        self.assertIn(reverse('profile_detail', args=[self.public.id]), content)
+        self.assertNotIn(reverse('profile_detail', args=[self.pending.id]), content)
+        self.assertNotIn(reverse('profile_detail', args=[self.admin.id]), content)
+
+    def test_review_author_links_to_profile_only_when_public(self):
+        from reviews.models import Review
+        review = Review.objects.create(
+            author=self.pending.profile, rating=5, content='x', approved=True)
+        response = self.client.get(reverse('review_detail', args=[review.id]))
+        self.assertContains(response, 'Pendina')
+        self.assertNotContains(
+            response, reverse('profile_detail', args=[self.pending.id]))

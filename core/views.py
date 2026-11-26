@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count
 from django.contrib import messages
+from django.http import Http404
 from profiles.models import UserProfile
 from reviews.models import Review, Comment
 
@@ -53,7 +54,8 @@ def user_profiles(request):
         search_query = request.GET.get('search_query')
 
     queryset = (
-        UserProfile.objects
+        UserProfile.objects.public()
+        .select_related('user')
         .filter(user__first_name__icontains=search_query)
         .order_by('user__first_name')
     )
@@ -103,8 +105,17 @@ def privacy_policy(request):
 def profile_detail(request, user_id):
     """
     Renders the profile page for a particular user.
+
+    Only approved, non-staff profiles are public. Any other profile is a
+    404, except to its owner and to staff.
     """
-    user_profile = get_object_or_404(UserProfile, user_id=user_id)
+    user_profile = get_object_or_404(
+        UserProfile.objects.select_related('user'), user_id=user_id
+    )
+    viewer = request.user
+    if not (user_profile.is_public or viewer.is_staff
+            or viewer.id == user_profile.user_id):
+        raise Http404("No profile matches the given query.")
     comment_count = (
         Comment.objects
         .filter(review__author=user_profile, approved=True).count()
