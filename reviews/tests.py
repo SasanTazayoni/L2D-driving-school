@@ -958,3 +958,60 @@ class QueryCountStabilityTest(TestCase):
 
     def test_user_profiles(self):
         self.assert_flat(reverse('user_profiles'))
+
+
+
+class ReviewTemplateDetailsTest(TestCase):
+    """
+    Template-level fixes: no login usernames in public pages, correct
+    redirects after deleting a comment, empty-state text, screen-reader
+    labels and meaningful alt text.
+    """
+    def setUp(self):
+        self.author = User.objects.create_user(
+            'secret_login_name', 'a@example.com', 'password', first_name='Alex')
+        self.review = Review.objects.create(
+            author=self.author.profile, rating=4, content='Good', approved=True)
+        self.comment = Comment.objects.create(
+            review=self.review, author=self.author.profile, content='Thanks')
+
+    def test_review_page_does_not_show_login_username(self):
+        response = self.client.get(reverse('review_detail', args=[self.review.id]))
+        self.assertContains(response, "Alex's 4-Star Review")
+        self.assertNotContains(response, 'secret_login_name')
+
+    def test_delete_comment_from_review_page_returns_to_review(self):
+        self.client.force_login(self.author)
+        page = self.client.get(reverse('review_detail', args=[self.review.id]))
+        self.assertNotContains(page, 'name="source_page"')
+        response = self.client.post(
+            reverse('delete_comment', args=[self.review.id, self.comment.id]))
+        self.assertRedirects(
+            response, reverse('review_detail', args=[self.review.id]),
+            fetch_redirect_response=False)
+
+    def test_delete_comment_from_profile_returns_to_profile(self):
+        self.client.force_login(self.author)
+        page = self.client.get(reverse('profile_page'))
+        self.assertContains(page, 'name="source_page" value="profile"')
+
+    def test_only_own_comments_get_delete_dialogs(self):
+        other = User.objects.create_user('other', 'o@example.com', 'password')
+        Comment.objects.create(
+            review=self.review, author=other.profile, content='Hi')
+        self.client.force_login(other)
+        page = self.client.get(reverse('review_detail', args=[self.review.id]))
+        self.assertNotContains(page, f'deleteCommentModal{self.comment.id}"')
+
+    def test_reviews_list_without_reviews_says_so(self):
+        Review.objects.all().delete()
+        response = self.client.get(reverse('reviews'))
+        self.assertContains(response, 'No reviews yet')
+        self.assertNotContains(response, 'None / 5')
+
+    def test_reviews_list_has_alt_text_and_spoken_counts(self):
+        response = self.client.get(reverse('reviews'))
+        self.assertContains(response, 'alt="Default profile picture"')
+        self.assertContains(response, '<span class="visually-hidden"> comment</span>', html=True)
+        self.assertContains(response, '<span class="visually-hidden"> likes</span>', html=True)
+        self.assertNotContains(response, 'alt="User:')

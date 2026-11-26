@@ -1,0 +1,10 @@
+{% comment %}
+Comment and like counts for a review, with spoken labels for screen readers.
+Expects: comment_count, like_count. Optional: small (compact card styling).
+{% endcomment %}
+<div class="comment-icon-container{% if small %}-small{% endif %} bold">
+    <i class="far fa-comments" aria-hidden="true"></i> {{ comment_count }}<span class="visually-hidden"> comment{{ comment_count|pluralize }}</span>
+</div>
+<div class="like-icon-container{% if small %}-small{% endif %} bold">
+    <i class="{% if like_count > 0 %}fa-solid{% else %}fa-regular{% endif %} fa-heart" aria-hidden="true"></i> {{ like_count }}<span class="visually-hidden"> like{{ like_count|pluralize }}</span>
+</div>

@@ -20,9 +20,9 @@
                     <div class="col-12 text-center">
                         <h2>{{ user_profile.user.first_name }}</h2>
                         {% if user_profile.profile_picture %}
-                            <img src="{{ user_profile.profile_picture.url }}" alt="User:{{ user_profile.user.first_name }}" class="profile-image" loading="lazy">
+                            <img src="{{ user_profile.profile_picture.url }}" alt="Profile picture of {{ user_profile }}" class="profile-image">
                         {% else %}
-                            <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="profile-image" loading="lazy">
+                            <img src="{% static 'images/defaultpicture.png' %}" alt="Default profile picture" class="profile-image">
                         {% endif %}
                         {% if user_profile.age %}
                             <p class="profile-info py-1">Age: {{ user_profile.age }}</p>
@@ -67,17 +67,7 @@
                                         href="{% url 'review_detail' user_profile.review.id %}">View details</a>
                                     </p>
                                     <div class="col-12 text-center mb-3">
-                                        <div class="comment-icon-container bold">
-                                            <i class="far fa-comments"></i> {{ comment_count }}
-                                        </div>
-                                        <div class="like-icon-container bold">
-                                        {% if like_count > 0 %}
-                                            <i class="fa-solid fa-heart"></i>
-                                        {% else %}
-                                            <i class="fa-regular fa-heart"></i>
-                                        {% endif %}
-                                        {{ like_count }}
-                                        </div>
+                                        {% include "includes/review_counts.html" %}
                                     </div>
                                     <p>{{ user_profile.review.content }}</p>
                                 </div>

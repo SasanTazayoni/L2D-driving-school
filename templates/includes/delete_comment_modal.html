@@ -1,0 +1,30 @@
+{% comment %}
+Confirmation dialog for deleting one of the current user's comments.
+Expects: comment. Optional: return_to_profile (go back to the profile page
+afterwards instead of the review). Opened by a button with
+data-bs-target="#deleteCommentModal{{ comment.id }}".
+{% endcomment %}
+<div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1"
+    role="dialog" aria-modal="true"
+    aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-center">
+                <h2 class="modal-title h5" id="deleteCommentModalLabel{{ comment.id }}">Delete Comment Confirmation</h2>
+            </div>
+            <div class="modal-body d-flex justify-content-center">
+                Are you sure you want to delete your comment?
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <form method="POST" action="{% url 'delete_comment' review_id=comment.review_id comment_id=comment.id %}">
+                    {% csrf_token %}
+                    {% if return_to_profile %}
+                        <input type="hidden" name="source_page" value="profile">
+                    {% endif %}
+                    <button type="submit" class="blue-button">Yes</button>
+                </form>
+                <button type="button" class="red-button" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>

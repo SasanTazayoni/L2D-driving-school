@@ -62,7 +62,9 @@
             <br>
         </p>
         <!-- Average rating of all reviews -->
-        <p class="text-center mb-4 bold average-rating">Average rating: {{ average_rating }} / 5</p>
+        <p class="text-center mb-4 bold average-rating">
+            {% if average_rating %}Average rating: {{ average_rating }} / 5{% else %}No reviews yet{% endif %}
+        </p>
         <div class="row">
             <!-- Review cards -->
             {% for review in review_list %}
@@ -71,10 +73,10 @@
                         <div class="card review-card mb-4">
                             <div class="d-flex align-items-center justify-content-between review-card-header--small">
                                 {% if review.author.profile_picture %}
-                                <img src="{{ review.author.profile_picture.url }}" alt="User:{{ review.author.username }}"
+                                <img src="{{ review.author.profile_picture.url }}" alt="Profile picture of {{ review.author }}"
                                     class="review-image" loading="lazy">
                                 {% else %}
-                                <img src="{% static 'images/defaultpicture.png' %}" alt="Default user image"
+                                <img src="{% static 'images/defaultpicture.png' %}" alt="Default profile picture"
                                     class="review-image" loading="lazy">
                                 {% endif %}
                                 <p class="text-center px-2 review-header-text-small">
@@ -89,17 +91,7 @@
                                     {% endwith %}
                                 </div>
                                 <div class="d-flex">
-                                    <div class="comment-icon-container-small bold">
-                                        <i class="far fa-comments"></i> {{ review.comment_count }}
-                                    </div>
-                                    <div class="like-icon-container-small bold">
-                                        {% if review.like_count > 0 %}
-                                            <i class="fa-solid fa-heart"></i>
-                                        {% else %}
-                                            <i class="fa-regular fa-heart"></i>
-                                        {% endif %}
-                                        {{ review.like_count }}
-                                    </div>
+                                    {% include "includes/review_counts.html" with comment_count=review.comment_count like_count=review.like_count small=True %}
                                 </div>
                             </div>
                         </div>

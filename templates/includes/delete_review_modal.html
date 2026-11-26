@@ -1,0 +1,25 @@
+{% comment %}
+Confirmation dialog for deleting the current user's review.
+Expects: review_id. Opened by a button with data-bs-target="#deleteReviewModal".
+{% endcomment %}
+<div class="modal fade" id="deleteReviewModal" tabindex="-1"
+    role="dialog" aria-modal="true"
+    aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-center">
+                <h2 class="modal-title h5" id="deleteReviewModalLabel">Delete Review Confirmation</h2>
+            </div>
+            <div class="modal-body d-flex justify-content-center">
+                Are you sure you want to delete your review?
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <form method="POST" action="{% url 'delete_review' review_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="blue-button">Yes</button>
+                </form>
+                <button type="button" class="red-button" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>

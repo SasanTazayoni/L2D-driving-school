@@ -19,9 +19,9 @@
           <div class="col-12 text-center">
             <h2>{{ profile.user.first_name }}</h2>
             {% if profile.profile_picture %}
-              <img src="{{ profile.profile_picture.url }}" alt="Your current uploaded image" class="profile-image" loading="lazy">
+              <img src="{{ profile.profile_picture.url }}" alt="Your profile picture" class="profile-image">
             {% else %}
-              <img src="{% static 'images/defaultpicture.png' %}" alt="Default user" class="profile-image" loading="lazy">
+              <img src="{% static 'images/defaultpicture.png' %}" alt="Default profile picture" class="profile-image">
             {% endif %}
             {% if profile.age %}
               <p class="profile-info py-1">Age: {{ profile.age }}</p>
@@ -58,29 +58,19 @@
             {% if profile.review %}
               {% if profile.review.approved %}
                 <div class="profile-content">
-                  	<div class="fs-4 mb-2">
-						{% with rating=profile.review.rating %}
-							{% include "includes/stars.html" %}
-						{% endwith %}
-                	</div>
-					<p>{{ profile.review.created_on }} - <a class="link"
-						href="{% url 'review_detail' profile.review.id %}">View details</a>
-					</p>
-					<div class="col-12 text-center mb-3">
-						<div class="comment-icon-container bold">
-							<i class="far fa-comments"></i> {{ comment_count }}
-						</div>
-						<div class="like-icon-container bold">
-              {% if like_count > 0 %}
-                <i class="fa-solid fa-heart"></i>
-              {% else %}
-                <i class="fa-regular fa-heart"></i>
-              {% endif %}
-						{{ like_count }}
-						</div>
-					</div>
-					<p>{{ profile.review.content }}</p>
-				</div>
+                  <div class="fs-4 mb-2">
+                    {% with rating=profile.review.rating %}
+                      {% include "includes/stars.html" %}
+                    {% endwith %}
+                  </div>
+                  <p>{{ profile.review.created_on }} - <a class="link"
+                    href="{% url 'review_detail' profile.review.id %}">View details</a>
+                  </p>
+                  <div class="col-12 text-center mb-3">
+                    {% include "includes/review_counts.html" %}
+                  </div>
+                  <p>{{ profile.review.content }}</p>
+                </div>
               {% else %}
                 <div class="profile-content">
                   <div data-rating>Review rating: {{ profile.review.rating }}</div>
@@ -94,15 +84,14 @@
               </div>
             {% endif %}
             <div class="btn-container">
-              {% if not profile.review %}
-                <a href="{% url 'create_review' %}" class="blue-button">Add Review</a>
-              {% endif %}
               {% if profile.review %}
                 <div class="btn-container d-flex justify-content-center m-0">
                   <a href="{% url 'update_review' review_id %}" class="blue-button">Edit Review</a>
                   <button type="button" class="red-button" data-bs-toggle="modal"
                     data-bs-target="#deleteReviewModal">Delete Review</button>
                 </div>
+              {% else %}
+                <a href="{% url 'create_review' %}" class="blue-button">Add Review</a>
               {% endif %}
             </div>
           </div>
@@ -111,31 +100,19 @@
             {% if user_comments %}
               <h3>Your Comments</h3>
               {% for comment in user_comments %}
-                {% if comment.approved %}
-                  <div class="profile-content mb-4">
-                    <p class="mb-3">{{ comment.replied_on }} - <a class="link" href="{% url 'review_detail' comment.review.id %}" class="link">Review by
-                      {{ comment.review.author }}</a></p>
-                    <p class="mb-3">{{ comment.content }}</p>
-                    <div class="btn-container d-flex justify-content-center m-0">
-                      <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
-                        class="blue-button">Edit</a>
-                      <button type="button" class="red-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteCommentModal{{ comment.id }}">Delete</button>
-                    </div>
+                <div class="profile-content mb-4">
+                  <p class="mb-3">{{ comment.replied_on }} - <a href="{% url 'review_detail' comment.review_id %}" class="link">Review by
+                    {{ comment.review.author }}</a></p>
+                  <p class="mb-3{% if not comment.approved %} pending-approval{% endif %}">
+                    {{ comment.content }}{% if not comment.approved %} (hidden by admin){% endif %}
+                  </p>
+                  <div class="btn-container d-flex justify-content-center m-0">
+                    <a href="{% url 'edit_comment' review_id=comment.review_id comment_id=comment.id %}"
+                      class="blue-button">Edit</a>
+                    <button type="button" class="red-button" data-bs-toggle="modal"
+                      data-bs-target="#deleteCommentModal{{ comment.id }}">Delete</button>
                   </div>
-                {% else %}
-                  <div class="profile-content mb-4">
-                    <p class="mb-3">{{ comment.replied_on }} - <a href="{% url 'review_detail' comment.review.id %}" class="link">Review by
-                      {{ comment.review.author }}</a></p>
-                    <p class="pending-approval mb-3">{{ comment.content }} (hidden by admin)</p>
-                    <div class="btn-container d-flex justify-content-center m-0">
-                      <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
-                        class="blue-button">Edit</a>
-                      <button type="button" class="red-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteCommentModal{{ comment.id }}">Delete</button>
-                    </div>
-                  </div>
-                {% endif %}
+                </div>
               {% endfor %}
             {% endif %}
           </div>
@@ -151,7 +128,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header d-flex justify-content-center">
-          <h5 class="modal-title" id="deleteProfileModalLabel">Confirm Profile Deletion</h5>
+          <h2 class="modal-title h5" id="deleteProfileModalLabel">Confirm Profile Deletion</h2>
         </div>
         <div class="modal-body d-flex justify-content-center">
           Are you sure you want to delete your account? All your information including posts will be permanently
@@ -168,55 +145,12 @@
     </div>
   </div>
 
-  <!-- Delete Review Modal -->
   {% if review_id %}
-    <div class="modal fade" id="deleteReviewModal" tabindex="-1"
-      role="dialog" aria-modal="true"
-      aria-labelledby="deleteReviewModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header d-flex justify-content-center">
-            <h5 class="modal-title" id="deleteReviewModalLabel">Delete Review Confirmation</h5>
-          </div>
-          <div class="modal-body d-flex justify-content-center">
-            Are you sure you want to delete your review?
-          </div>
-          <div class="modal-footer d-flex justify-content-center">
-            <form method="POST" action="{% url 'delete_review' review_id %}">
-              {% csrf_token %}
-              <button type="submit" class="blue-button">Yes</button>
-            </form>
-            <button type="button" class="red-button" data-bs-dismiss="modal">No</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include "includes/delete_review_modal.html" %}
   {% endif %}
 
   {% for comment in user_comments %}
-  <!-- Delete Comment Modal -->
-    <div class="modal fade" id="deleteCommentModal{{ comment.id }}" tabindex="-1"
-      role="dialog" aria-modal="true"
-      aria-labelledby="deleteCommentModalLabel{{ comment.id }}" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header d-flex justify-content-center">
-            <h5 class="modal-title" id="deleteCommentModalLabel{{ comment.id }}">Delete Comment Confirmation</h5>
-          </div>
-          <div class="modal-body d-flex justify-content-center">
-            Are you sure you want to delete your comment?
-          </div>
-          <div class="modal-footer d-flex justify-content-center">
-            <form method="POST" action="{% url 'delete_comment' review_id=comment.review.id comment_id=comment.id %}">
-              {% csrf_token %}
-              <input type="hidden" name="source_page" value="profile">
-              <button type="submit" class="blue-button">Yes</button>
-            </form>
-            <button type="button" class="red-button" data-bs-dismiss="modal">No</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include "includes/delete_comment_modal.html" with return_to_profile=True %}
   {% endfor %}
 </section>
 
