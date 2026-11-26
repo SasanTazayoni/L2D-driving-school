@@ -48,8 +48,8 @@ if "DYNO" in os.environ:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    # Start with 1 hour; raise to 31536000 (1 year) once HTTPS is confirmed.
-    SECURE_HSTS_SECONDS = 3600
+    # Browsers will only use HTTPS for this site for 1 year after a visit.
+    SECURE_HSTS_SECONDS = 31536000
 
 # Application definition
 INSTALLED_APPS = [
