@@ -61,7 +61,9 @@ class Comment(models.Model):
         blank=False
     )
     content = models.TextField(max_length=800, null=False, blank=False)
-    approved = models.BooleanField(default=False)
+    # Comments are published immediately. Staff can untick this in the
+    # admin to hide a comment (e.g. spam) without deleting it.
+    approved = models.BooleanField(default=True)
     replied_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 

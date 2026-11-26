@@ -769,32 +769,46 @@ class ModerationAndPermissionTest(TestCase):
         self.client.post(self.detail_url(self.pending), {'content': 'Early comment'})
         self.assertFalse(Comment.objects.exists())
 
-    def test_editing_approved_comment_requires_reapproval(self):
+    def test_new_comment_is_published_immediately(self):
+        self.client.force_login(self.author)
+        self.client.post(self.detail_url(self.approved), {'content': 'Straight in'})
+        comment = Comment.objects.get()
+        self.assertTrue(comment.approved)
+        self.client.logout()
+        self.assertContains(self.client.get(self.detail_url(self.approved)), 'Straight in')
+
+    def test_editing_comment_keeps_it_published(self):
         comment = Comment.objects.create(
-            review=self.approved, author=self.author.profile,
-            content='Original', approved=True
+            review=self.approved, author=self.author.profile, content='Original'
         )
         self.client.force_login(self.author)
         self.client.post(
             reverse('edit_comment', args=[self.approved.id, comment.id]),
-            {'content': 'Changed after approval'}
+            {'content': 'Changed later'}
         )
         comment.refresh_from_db()
-        self.assertEqual(comment.content, 'Changed after approval')
+        self.assertEqual(comment.content, 'Changed later')
+        self.assertTrue(comment.approved)
+
+    def test_comment_hidden_by_staff_stays_hidden_after_edit(self):
+        comment = Comment.objects.create(
+            review=self.approved, author=self.author.profile,
+            content='Spam', approved=False
+        )
+        self.client.force_login(self.author)
+        self.client.post(
+            reverse('edit_comment', args=[self.approved.id, comment.id]),
+            {'content': 'Still spam'}
+        )
+        comment.refresh_from_db()
         self.assertFalse(comment.approved)
 
-    def test_saving_comment_unchanged_keeps_approval(self):
-        comment = Comment.objects.create(
-            review=self.approved, author=self.author.profile,
-            content='Original', approved=True
-        )
+    def test_comment_form_has_clear_button(self):
         self.client.force_login(self.author)
-        self.client.post(
-            reverse('edit_comment', args=[self.approved.id, comment.id]),
-            {'content': 'Original'}
+        response = self.client.get(self.detail_url(self.approved))
+        self.assertContains(
+            response, '<button type="reset" class="red-button">Clear</button>', html=True
         )
-        comment.refresh_from_db()
-        self.assertTrue(comment.approved)
 
     def test_comment_cannot_be_moved_to_another_review(self):
         own_review = Review.objects.create(

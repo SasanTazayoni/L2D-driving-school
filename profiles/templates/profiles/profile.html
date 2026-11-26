@@ -127,7 +127,7 @@
                   <div class="profile-content mb-4">
                     <p class="mb-3">{{ comment.replied_on }} - <a href="{% url 'review_detail' comment.review.id %}" class="link">Review by
                       {{ comment.review.author }}</a></p>
-                    <p class="pending-approval mb-3">{{ comment.content }} (pending approval)</p>
+                    <p class="pending-approval mb-3">{{ comment.content }} (hidden by admin)</p>
                     <div class="btn-container d-flex justify-content-center m-0">
                       <a href="{% url 'edit_comment' review_id=comment.review.id comment_id=comment.id %}"
                         class="blue-button">Edit</a>

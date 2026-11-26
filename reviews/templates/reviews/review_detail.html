@@ -148,7 +148,7 @@
                 <div class="comment-container pending-approval">
                     <p class="comment-author">
                         <strong>{{ comment.author }}</strong> wrote ({{ comment.replied_on }}):
-                        <span class="italic">(pending approval)</span>
+                        <span class="italic">(hidden by admin)</span>
                     </p>
                     <div id="comment{{ comment.id }}" class="comment-content">
                         {{ comment.content }}
@@ -184,6 +184,9 @@
                 {% endfor %}
                 <div class="btn-container d-flex justify-content-center">
                     <button id="submitButton" type="submit" class="blue-button">Submit</button>
+                    {% if not is_edit_comment_view %}
+                        <button type="reset" class="red-button">Clear</button>
+                    {% endif %}
                     {% if is_edit_comment_view %}
                         <a href="{% url 'review_detail' review_id=review_id %}" class="red-button">Cancel</a>
                     {% endif %}

@@ -99,7 +99,7 @@ def review_detail(request, review_id):
             comment.save()
             messages.add_message(
                 request, messages.SUCCESS,
-                'Your comment was submitted and is now pending admin approval.'
+                'Your comment has been posted.'
             )
             return redirect('review_detail', review_id=review_id)
     else:
@@ -136,14 +136,8 @@ def edit_comment(request, review_id, comment_id):
         comment_form = CommentForm(request.POST, instance=comment)
         if comment_form.is_valid():
             if comment_form.has_changed():
-                edited_comment = comment_form.save(commit=False)
-                # Changed text must be moderated again before it is public.
-                edited_comment.approved = False
-                edited_comment.save()
-                messages.success(
-                    request,
-                    'Comment updated. It is now pending admin approval.'
-                )
+                comment_form.save()
+                messages.success(request, 'Comment updated.')
             else:
                 messages.info(request, 'No changes were made.')
             return HttpResponseRedirect(
