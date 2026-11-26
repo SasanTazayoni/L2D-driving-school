@@ -2,7 +2,9 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render
 
 
-def handler404(request, exception):
+# Django calls this with `exception` as a keyword argument, so the
+# parameter must exist even though the page does not use it.
+def handler404(request, exception):  # pylint: disable=unused-argument
     return render(request, '404.html', status=404)
 
 

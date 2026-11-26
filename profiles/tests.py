@@ -1,12 +1,14 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test.client import Client
 from profiles.admin import CustomUserAdmin, UserProfileAdmin
 from profiles.forms import CustomSignupForm
 from profiles.models import UserProfile
+
+User = get_user_model()
 
 
 class ProfilePageViewTest(TestCase):

@@ -1,6 +1,5 @@
 from . import views
 from django.urls import path
-from .views import like_toggle
 
 urlpatterns = [
     path("", views.ReviewList.as_view(), name="reviews"),

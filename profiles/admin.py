@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import UserProfile
 from django_summernote.admin import SummernoteModelAdmin
+
+User = get_user_model()
 
 admin.site.unregister(User)
 

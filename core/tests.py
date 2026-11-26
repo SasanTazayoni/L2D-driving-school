@@ -1,8 +1,10 @@
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from profiles.models import UserProfile
+
+User = get_user_model()
 
 
 class Custom404Test(TestCase):
@@ -182,7 +184,7 @@ class UserProfilePaginationViewTest(TestCase):
                 password='password'
             )
 
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile, _ = UserProfile.objects.get_or_create(user=user)
             profile.approved = True
             profile.save()
             self.users.append((user, profile))

@@ -1,16 +1,17 @@
 from django.http import HttpResponseRedirect
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.admin.sites import AdminSite
 from django.contrib.messages.storage.fallback import FallbackStorage
 from reviews.models import Review, Comment
 from reviews.admin import ReviewAdmin, CommentAdmin
 from profiles.models import UserProfile
-from .forms import ReviewForm, CommentForm
+from .forms import CommentForm
 from django.core.paginator import Paginator
-from reviews.views import ReviewList
 from django.utils import timezone
+
+User = get_user_model()
 
 
 class ReviewListViewPaginationTest(TestCase):
@@ -29,7 +30,7 @@ class ReviewListViewPaginationTest(TestCase):
                 email=f'user_{i}@example.com',
                 password='password'
             )
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile, _ = UserProfile.objects.get_or_create(user=user)
             self.users.append(profile)
 
         # Create 10 test reviews with authors set to user profiles
@@ -47,11 +48,9 @@ class ReviewListViewPaginationTest(TestCase):
         Test for pagination on reviews page.
         """
         url = reverse('reviews')
-        request = self.factory.get(url)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         reviews = Review.objects.all().order_by('-created_on')
-        page = request.GET.get('page')
         results_per_page = 6
         paginator = Paginator(reviews, results_per_page)
         self.assertEqual(paginator.num_pages, 2)
@@ -201,7 +200,7 @@ class EditCommentViewTest(TestCase):
         """
         Test that a user cannot edit another user's comment.
         """
-        other_user = User.objects.create_user(
+        User.objects.create_user(
             first_name='Other',
             username='otheruser',
             email='other@example.com',
@@ -335,7 +334,7 @@ class DeleteCommentViewTest(TestCase):
         """
         Test that a user cannot delete another user's comment.
         """
-        other_user = User.objects.create_user(
+        User.objects.create_user(
             first_name='Other', username='otheruser',
             email='other@example.com', password='password'
         )
@@ -358,14 +357,14 @@ class CreateReviewViewTest(TestCase):
     Test cases for creating a review.
     """
     def setUp(self):
-            self.testuser = User.objects.create_user(
-                first_name='Fake',
-                username='fakeuser',
-                email='fakeuser@fakemail.com',
-                password='password'
-            )
+        self.testuser = User.objects.create_user(
+            first_name='Fake',
+            username='fakeuser',
+            email='fakeuser@fakemail.com',
+            password='password'
+        )
 
-            self.testuser.save()
+        self.testuser.save()
 
     def test_authenticated_user_without_review(self):
         """
@@ -380,7 +379,7 @@ class CreateReviewViewTest(TestCase):
         """
         Test the behavior of creating a review for an authenticated user with an existing review.
         """
-        review = Review.objects.create(author=self.testuser.profile, rating=4, content="Test Review Content", approved=True)
+        Review.objects.create(author=self.testuser.profile, rating=4, content="Test Review Content", approved=True)
         self.client.login(username='fakeuser', password='password')
         response = self.client.get(reverse('create_review'))
         self.assertRedirects(response, reverse('profile_page'))
@@ -540,7 +539,7 @@ class DeleteReviewViewTest(TestCase):
         """
         Test that a user cannot delete another user's review.
         """
-        other_user = User.objects.create_user(
+        User.objects.create_user(
             first_name='Other', username='otheruser',
             email='other@example.com', password='password'
         )

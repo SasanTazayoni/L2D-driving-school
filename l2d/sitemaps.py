@@ -33,11 +33,11 @@ class ReviewSitemap(Sitemap):
     def items(self):
         return Review.objects.filter(approved=True)
 
-    def location(self, obj):
-        return reverse('review_detail', args=[obj.id])
+    def location(self, item):
+        return reverse('review_detail', args=[item.id])
 
-    def lastmod(self, obj):
-        return obj.updated_on or obj.created_on
+    def lastmod(self, item):
+        return item.updated_on or item.created_on
 
 
 class ProfileSitemap(Sitemap):
@@ -47,8 +47,8 @@ class ProfileSitemap(Sitemap):
     def items(self):
         return UserProfile.objects.public().select_related('user')
 
-    def location(self, obj):
-        return reverse('profile_detail', args=[obj.user.id])
+    def location(self, item):
+        return reverse('profile_detail', args=[item.user.id])
 
-    def lastmod(self, obj):
-        return obj.created_on
+    def lastmod(self, item):
+        return item.created_on

@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
 
 
@@ -11,7 +11,7 @@ class UserProfileQuerySet(models.QuerySet):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='profile',
         blank=False,
@@ -39,4 +39,4 @@ class UserProfile(models.Model):
 
     def __str__(self):
         # Accounts made with createsuperuser have no first name.
-        return self.user.first_name or self.user.username
+        return str(self.user.first_name or self.user.username)

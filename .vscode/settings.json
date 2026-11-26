@@ -3,7 +3,8 @@
    "pylint.importStrategy": "fromEnvironment",
    "pylint.args": [
       "--load-plugins=pylint_django",
-      "--django-settings-module=l2d.settings"
+      "--django-settings-module=l2d.settings",
+      "--disable=C0114,C0115,C0116"
    ],
    "python.linting.pylintEnabled": false,
    "python.linting.enabled": true,

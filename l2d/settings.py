@@ -16,7 +16,8 @@ import dj_database_url
 import cloudinary
 from django.core.exceptions import ImproperlyConfigured
 if os.path.isfile('env.py'):
-    import env
+    # Imported for its side effect: sets local environment variables.
+    import env  # pylint: disable=unused-import
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
