@@ -708,3 +708,143 @@ class ReviewAdminTest(TestCase):
         )
         self.comment.refresh_from_db()
         self.assertTrue(self.comment.approved)
+
+
+
+class ModerationAndPermissionTest(TestCase):
+    """
+    Regression tests for review/comment moderation and permissions:
+    pending reviews stay private, edits are re-moderated, comments need a
+    login and an approved review, and likes only change via POST.
+    """
+    def setUp(self):
+        self.author = User.objects.create_user(
+            username='author', email='author@example.com',
+            password='password', first_name='Author'
+        )
+        self.other = User.objects.create_user(
+            username='other', email='other@example.com',
+            password='password', first_name='Other'
+        )
+        self.staff = User.objects.create_user(
+            username='staff', email='staff@example.com',
+            password='password', is_staff=True
+        )
+        self.pending = Review.objects.create(
+            author=self.author.profile, rating=2,
+            content='Pending review text', approved=False
+        )
+        self.approved = Review.objects.create(
+            author=self.other.profile, rating=5,
+            content='Approved review text', approved=True
+        )
+
+    def detail_url(self, review):
+        return reverse('review_detail', args=[review.id])
+
+    # Pending reviews are private
+    def test_pending_review_hidden_from_anonymous_and_other_users(self):
+        self.assertEqual(self.client.get(self.detail_url(self.pending)).status_code, 404)
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(self.detail_url(self.pending)).status_code, 404)
+
+    def test_pending_review_visible_to_author_and_staff(self):
+        for user in (self.author, self.staff):
+            self.client.force_login(user)
+            response = self.client.get(self.detail_url(self.pending))
+            self.assertContains(response, 'Pending review text')
+            self.assertContains(response, 'pending admin approval')
+            self.assertNotContains(response, 'id="commentForm"')
+
+    # Comments
+    def test_anonymous_comment_post_redirects_to_login(self):
+        response = self.client.post(
+            self.detail_url(self.approved), {'content': 'Drive-by comment'}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('account_login'), response['Location'])
+        self.assertFalse(Comment.objects.exists())
+
+    def test_cannot_comment_on_pending_review(self):
+        self.client.force_login(self.author)
+        self.client.post(self.detail_url(self.pending), {'content': 'Early comment'})
+        self.assertFalse(Comment.objects.exists())
+
+    def test_editing_approved_comment_requires_reapproval(self):
+        comment = Comment.objects.create(
+            review=self.approved, author=self.author.profile,
+            content='Original', approved=True
+        )
+        self.client.force_login(self.author)
+        self.client.post(
+            reverse('edit_comment', args=[self.approved.id, comment.id]),
+            {'content': 'Changed after approval'}
+        )
+        comment.refresh_from_db()
+        self.assertEqual(comment.content, 'Changed after approval')
+        self.assertFalse(comment.approved)
+
+    def test_saving_comment_unchanged_keeps_approval(self):
+        comment = Comment.objects.create(
+            review=self.approved, author=self.author.profile,
+            content='Original', approved=True
+        )
+        self.client.force_login(self.author)
+        self.client.post(
+            reverse('edit_comment', args=[self.approved.id, comment.id]),
+            {'content': 'Original'}
+        )
+        comment.refresh_from_db()
+        self.assertTrue(comment.approved)
+
+    def test_comment_cannot_be_moved_to_another_review(self):
+        own_review = Review.objects.create(
+            author=self.staff.profile, rating=4, content='x', approved=True
+        )
+        comment = Comment.objects.create(
+            review=self.approved, author=self.author.profile, content='Mine'
+        )
+        self.client.force_login(self.author)
+        response = self.client.post(
+            reverse('edit_comment', args=[own_review.id, comment.id]),
+            {'content': 'Moved?'}
+        )
+        self.assertEqual(response.status_code, 404)
+        comment.refresh_from_db()
+        self.assertEqual(comment.review_id, self.approved.id)
+        self.assertEqual(comment.content, 'Mine')
+
+    # Reviews
+    def test_editing_approved_review_requires_reapproval(self):
+        self.client.force_login(self.other)
+        self.client.post(
+            reverse('update_review', args=[self.approved.id]),
+            {'rating': 1, 'content': 'Changed after approval'}
+        )
+        self.approved.refresh_from_db()
+        self.assertEqual(self.approved.content, 'Changed after approval')
+        self.assertFalse(self.approved.approved)
+        self.assertIsNotNone(self.approved.updated_on)
+
+    def test_saving_review_unchanged_keeps_approval(self):
+        self.client.force_login(self.other)
+        self.client.post(
+            reverse('update_review', args=[self.approved.id]),
+            {'rating': 5, 'content': 'Approved review text'}
+        )
+        self.approved.refresh_from_db()
+        self.assertTrue(self.approved.approved)
+        self.assertIsNone(self.approved.updated_on)
+
+    # Likes
+    def test_like_via_get_is_rejected(self):
+        self.client.force_login(self.author)
+        response = self.client.get(reverse('like_review', args=[self.approved.id]))
+        self.assertEqual(response.status_code, 405)
+        self.assertFalse(self.approved.likes.exists())
+
+    def test_cannot_like_pending_review(self):
+        self.client.force_login(self.other)
+        response = self.client.post(reverse('like_review', args=[self.pending.id]))
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(self.pending.likes.exists())

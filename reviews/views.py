@@ -1,14 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import generic
+from django.views.decorators.http import require_POST
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.contrib.auth.views import redirect_to_login
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.db.models import Count, Q, Avg
 from django.utils import timezone
 from .models import Review, Comment
 from .forms import ReviewForm, CommentForm
-from profiles.models import UserProfile
 from django.contrib.auth.decorators import login_required
+
+
+def get_visible_review(request, review_id):
+    """
+    Return the review if the current user is allowed to see it.
+
+    Approved reviews are public. Reviews awaiting approval are only visible
+    to their author and to staff; everyone else gets a 404, so pending
+    content cannot be read by guessing review IDs.
+    """
+    review = get_object_or_404(
+        Review.objects.select_related('author'), id=review_id
+    )
+    user = request.user
+    is_author = (
+        user.is_authenticated and review.author.user_id == user.id
+    )
+    if review.approved or is_author or user.is_staff:
+        return review
+    raise Http404("No Review matches the given query.")
 
 
 class ReviewList(generic.ListView):
@@ -48,10 +69,7 @@ def review_detail(request, review_id):
     Display the details of an individual review provided by a user.
     """
 
-    review = get_object_or_404(
-        Review.objects.select_related('author'),
-        id=review_id
-    )
+    review = get_visible_review(request, review_id)
     comments = review.comments.all().order_by("-replied_on")
     comment_count = review.comments.filter(approved=True).count()
     like_count = review.likes.count()
@@ -61,11 +79,17 @@ def review_detail(request, review_id):
         liked = review.likes.filter(user=request.user).exists()
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
+        if not review.approved:
+            messages.error(
+                request, 'Comments open once this review has been approved.'
+            )
+            return redirect('review_detail', review_id=review_id)
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
-            profile = UserProfile.objects.get(user=request.user)
-            comment.author = profile
+            comment.author = request.user.profile
             comment.review = review
             comment.save()
             messages.add_message(
@@ -94,8 +118,10 @@ def edit_comment(request, review_id, comment_id):
     """
     Edit a comment authored by the current user on a review.
     """
-    review = get_object_or_404(Review, id=review_id)
-    comment = get_object_or_404(Comment, id=comment_id)
+    review = get_visible_review(request, review_id)
+    # The comment must belong to the review in the URL, so a comment can
+    # never be moved onto a different review.
+    comment = get_object_or_404(Comment, id=comment_id, review=review)
 
     if comment.author.user != request.user:
         messages.error(request, 'You are not authorised to edit this comment.')
@@ -104,10 +130,17 @@ def edit_comment(request, review_id, comment_id):
     if request.method == "POST":
         comment_form = CommentForm(request.POST, instance=comment)
         if comment_form.is_valid():
-            edited_comment = comment_form.save(commit=False)
-            edited_comment.review = review
-            edited_comment.save()
-            messages.success(request, 'Comment updated.')
+            if comment_form.has_changed():
+                edited_comment = comment_form.save(commit=False)
+                # Changed text must be moderated again before it is public.
+                edited_comment.approved = False
+                edited_comment.save()
+                messages.success(
+                    request,
+                    'Comment updated. It is now pending admin approval.'
+                )
+            else:
+                messages.info(request, 'No changes were made.')
             return HttpResponseRedirect(
                 reverse('review_detail', args=[review_id])
             )
@@ -207,10 +240,19 @@ def update_review(request, review_id):
     if request.method == 'POST':
         form = ReviewForm(request.POST, instance=existing_review)
         if form.is_valid():
-            review = form.save(commit=False)
-            review.updated_on = timezone.now()
-            review.save()
-            messages.success(request, 'Your review has been updated.')
+            if form.has_changed():
+                review = form.save(commit=False)
+                review.updated_on = timezone.now()
+                # Changed text must be moderated again before it is public.
+                review.approved = False
+                review.save()
+                messages.success(
+                    request,
+                    'Your review has been updated and is now pending '
+                    'admin approval.'
+                )
+            else:
+                messages.info(request, 'No changes were made to your review.')
             return redirect('profile_page')
 
     context = {'form': form}
@@ -242,11 +284,13 @@ def delete_review(request, review_id):
 
 
 @login_required(login_url='/accounts/login/')
+@require_POST
 def like_toggle(request, review_id):
     """
-    Toggles the like status for a review.
+    Toggles the like status for an approved review. POST only, so a link
+    or image on another site cannot like or unlike on a user's behalf.
     """
-    review = get_object_or_404(Review, id=review_id)
+    review = get_object_or_404(Review, id=review_id, approved=True)
     user_profile = request.user.profile
 
     if review.likes.filter(id=user_profile.id).exists():

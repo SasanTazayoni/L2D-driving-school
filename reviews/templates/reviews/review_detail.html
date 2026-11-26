@@ -14,6 +14,9 @@
             <header class="page-header">
                 <h1>Review Details</h1>
             </header>
+            {% if not review.approved %}
+                <p class="pending-approval italic text-center">This review is pending admin approval and is not public yet.</p>
+            {% endif %}
             <div class="review-card-header">
                 {% if review.author.profile_picture %}
                     <img src="{{ review.author.profile_picture.url }}" alt="User:{{ review.author.user.username }}" class="review-image" loading="lazy">
@@ -44,7 +47,7 @@
                     <div class="comment-icon-container bold">
                         <i class="far fa-comments"></i> {{ comment_count }}
                     </div>
-                    {% if request.user.is_authenticated %}
+                    {% if request.user.is_authenticated and review.approved %}
                     <form action="{% url 'like_review' review_id %}" method="POST" class="like-icon-container">
                         {% csrf_token %}
                         <div class="bold">
@@ -159,8 +162,8 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <!-- Creating New Comments -->
-        {% if user.is_authenticated %}
+        <!-- Creating New Comments (only once the review is approved) -->
+        {% if user.is_authenticated and review.approved or user.is_authenticated and is_edit_comment_view %}
             {% if is_edit_comment_view %}
                 <h3 class="comment-prompt">Edit comment:</h3>
             {% else %}
